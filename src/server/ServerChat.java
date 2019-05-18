@@ -12,12 +12,20 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import frames.Frame;
+import frames.FrameLogin;
+import frames.FrameLoginAccepted;
+import frames.FrameLoginRefused;
+import frames.FrameMessage;
+import frames.FrameMessagePrivate;
 import readers.MessageReader;
 import readers.MessageReader.Message;
 import readers.Reader;
@@ -25,17 +33,18 @@ import readers.Reader;
 
 public class ServerChat {
 
-	static private class Context {
+	static private class Context implements Visitor {
 
 		final private SelectionKey key;
 		final private SocketChannel sc;
 		final private ByteBuffer bbin = ByteBuffer.allocate(BUFFER_SIZE);
 		final private ByteBuffer bbout = ByteBuffer.allocate(BUFFER_SIZE);
-		final private Queue<Message> queue = new LinkedList<>();
+		final private Queue<Frame> queue = new LinkedList<>();
 		final private ServerChat server;
 		private boolean closed = false;
 		private final Reader reader = new Reader(bbin);
 	    private final Charset utf8 = Charset.forName("UTF-8");
+	    private boolean loginAccepted;
 
 		private Context(ServerChat server, SelectionKey key){
 			this.key = key;
@@ -54,7 +63,7 @@ public class ServerChat {
 			while (true)
 				switch (reader.process()) {
 				case DONE:
-					var frame = (Frame) reader.get();
+					((Frame) reader.get()).accept(this);
 					reader.reset();
 					break;
 				case REFILL:
@@ -70,7 +79,7 @@ public class ServerChat {
 		 *
 		 * @param msg
 		 */
-		private void queueMessage(Message msg) {
+		private void queueMessage(Frame msg) {
 			queue.add(msg);
 			processOut();
 			updateInterestOps();
@@ -82,12 +91,10 @@ public class ServerChat {
 		 */
 		private void processOut() {
 			while (!queue.isEmpty()) {
-				var message = queue.element();
-				var login = utf8.encode(message.login);
-				var content = utf8.encode(message.content);
-				if (bbout.remaining() < 2*Integer.BYTES + login.capacity() + content.capacity())
+				var frameBuff = queue.element().asBuffer();
+				if (bbout.remaining() < frameBuff.capacity())
 					return;
-				bbout.putInt(login.capacity()).put(login).putInt(content.capacity()).put(content);
+				bbout.put(frameBuff);
 				queue.remove();
 			}
 		}
@@ -154,6 +161,32 @@ public class ServerChat {
 			updateInterestOps();
 		}
 
+		@Override
+		public void visit(FrameLogin frameLogin) {
+			if (loginAccepted || frameLogin.getLoginSender().isEmpty()) { // non normal behaviour
+				silentlyClose();
+				return;
+			}
+			var login = frameLogin.getLoginSender().get();
+			if (server.clients.containsKey(login))
+				queue.add(new FrameLoginRefused());
+			else {
+				server.clients.put(login, key);
+				queue.add(new FrameLoginAccepted());
+			}
+		}
+
+		@Override
+		public void visit(FrameMessage frameMessage) {
+			server.broadcast(frameMessage);
+		}
+
+		@Override
+		public void visit(FrameMessagePrivate frameMessagePrivate) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 
 	static private int BUFFER_SIZE = 1_024;
@@ -161,6 +194,7 @@ public class ServerChat {
 
 	private final ServerSocketChannel serverSocketChannel;
 	private final Selector selector;
+	private final Map<String, SelectionKey> clients = new HashMap<>();
 
 	public ServerChat(int port) throws IOException {
 		serverSocketChannel = ServerSocketChannel.open();
@@ -229,7 +263,7 @@ public class ServerChat {
 	 *
 	 * @param msg
 	 */
-	private void broadcast(Message msg) {
+	private void broadcast(Frame msg) {
 		for (var key : selector.keys())
 			if (!(key.channel() instanceof ServerSocketChannel))
 				((Context) key.attachment()).queueMessage(msg);

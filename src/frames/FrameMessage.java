@@ -44,12 +44,12 @@ public class FrameMessage implements Frame {
 
     @Override
     public String toString(){
-        StringBuilder sb=new StringBuilder(login).append(" send to all : ").append(message);
+        StringBuilder sb = new StringBuilder(login).append(" send to all : ").append(message);
         return sb.toString();
     }
 
     @Override
-    public ByteBuffer getBuffer() {
+    public ByteBuffer asBuffer() {
         ByteBuffer log= StringToBbManager.stringToBB(login);
         ByteBuffer msg= StringToBbManager.stringToBB(message);
         ByteBuffer toRet=ByteBuffer.allocate(1+log.remaining()+msg.remaining());

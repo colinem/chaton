@@ -45,10 +45,10 @@ public class FrameKoPrivate implements Frame {
     }
 
     @Override
-    public ByteBuffer getBuffer() {
+    public ByteBuffer asBuffer() {
         ByteBuffer requester= StringToBbManager.stringToBB(login_requester);
         ByteBuffer target= StringToBbManager.stringToBB(login_target);
-        ByteBuffer toRet=ByteBuffer.allocate(1+requester.remaining()+target.remaining());
+        ByteBuffer toRet=ByteBuffer.allocate(1+requester.remaining()+target.remaining()+2*Integer.BYTES);
         toRet.put(opcode);
         toRet.put(requester);
         toRet.put(target);

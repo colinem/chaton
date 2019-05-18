@@ -51,7 +51,7 @@ public class FrameMessagePrivate implements Frame {
     }
 
     @Override
-    public ByteBuffer getBuffer() {
+    public ByteBuffer asBuffer() {
         ByteBuffer sender= StringToBbManager.stringToBB(loginSender);
         ByteBuffer target= StringToBbManager.stringToBB(loginTarget);
         ByteBuffer msg= StringToBbManager.stringToBB(message);
