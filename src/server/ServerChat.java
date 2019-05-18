@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import readers.MessageReader;
 import readers.MessageReader.Message;
+import readers.Reader;
 
 
 public class ServerChat {
@@ -33,7 +34,7 @@ public class ServerChat {
 		final private Queue<Message> queue = new LinkedList<>();
 		final private ServerChat server;
 		private boolean closed = false;
-		private final MessageReader messageReader = new MessageReader(bbin);
+		private final Reader reader = new Reader(bbin);
 	    private final Charset utf8 = Charset.forName("UTF-8");
 
 		private Context(ServerChat server, SelectionKey key){
@@ -50,12 +51,11 @@ public class ServerChat {
 		 *
 		 */
 		private void processIn() {
-			// TODO
 			while (true)
-				switch (messageReader.process()) {
+				switch (reader.process()) {
 				case DONE:
-					server.broadcast((Message) messageReader.get());
-					messageReader.reset();
+					var frame = (Frame) reader.get();
+					reader.reset();
 					break;
 				case REFILL:
 					return;
@@ -104,7 +104,6 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
-			// TODO
 			var interestOps = 0;
 			if (!closed && bbin.hasRemaining())
 				interestOps = SelectionKey.OP_READ;
@@ -133,7 +132,6 @@ public class ServerChat {
 		 * @throws IOException
 		 */
 		private void doRead() throws IOException {
-			// TODO
 			if (sc.read(bbin) == -1)
 				closed = true;
 			processIn();
@@ -150,7 +148,6 @@ public class ServerChat {
 		 */
 
 		private void doWrite() throws IOException {
-			// TODO
 			sc.write(bbout.flip());
 			bbout.compact();
 			processOut();
@@ -233,7 +230,6 @@ public class ServerChat {
 	 * @param msg
 	 */
 	private void broadcast(Message msg) {
-		// TODO
 		for (var key : selector.keys())
 			if (!(key.channel() instanceof ServerSocketChannel))
 				((Context) key.attachment()).queueMessage(msg);

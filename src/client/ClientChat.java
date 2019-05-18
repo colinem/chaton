@@ -13,22 +13,24 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
-public class ClientChatInt {
+public class ClientChat {
 
 	static private int BUFFER_SIZE = 1_024;
-	static private Logger logger = Logger.getLogger(ClientChatInt.class.getName());
+	static private Logger logger = Logger.getLogger(ClientChat.class.getName());
 
 	private final SocketChannel socketChannel;
 	private final Selector selector;
 	
 	private SelectionKey key;
+	private final String login;
 	final private ByteBuffer bbin = ByteBuffer.allocate(BUFFER_SIZE);
 	final private ByteBuffer bbout = ByteBuffer.allocate(BUFFER_SIZE);
 	final private Queue<Frame> queue = new LinkedList<>();
 	private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(100);
 	private boolean closed = false;
 
-	public ClientChatInt(String host, int port) throws IOException {
+	public ClientChat(String host, int port, String login) throws IOException {
+		this.login = login;
 		socketChannel = SocketChannel.open();
 		selector = Selector.open();
 		socketChannel.configureBlocking(false);
@@ -145,26 +147,26 @@ public class ClientChatInt {
 	}
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
-		if (args.length != 2){
-			usage();
-			return;
-		}
-		
-		var client = new ClientChatInt(args[0], Integer.parseInt(args[1]));
-		
-		new Thread(() -> {
-			try (var scan = new Scanner(System.in)) {
-				while (scan.hasNext()) {
-					client.blockingQueue.offer(scan.next());
-					client.selector.wakeup();
+		try {
+			var client = new ClientChat(args[0], Integer.parseInt(args[1]), args[2]);
+			
+			new Thread(() -> {
+				try (var scan = new Scanner(System.in)) {
+					while (scan.hasNext()) {
+						client.blockingQueue.offer(scan.next());
+						client.selector.wakeup();
+					}
 				}
-			}
-		}).start();
-		
-		client.launch();
+			}).start();
+			
+			client.launch();
+			
+		} catch (IndexOutOfBoundsException | NumberFormatException e) {
+			usage();
+		}
 	}
 
 	private static void usage(){
-		System.out.println("Usage : ClientChatInt host port");
+		System.out.println("Usage : ClientChat host port login");
 	}
 }
