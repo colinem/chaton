@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameRequestPrivate implements Frame {
 
     private final byte opcode=5;
@@ -57,4 +59,9 @@ public class FrameRequestPrivate implements Frame {
         StringBuilder sb=new StringBuilder(login_requester).append(" want to have a private connection with you");
         return sb.toString();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

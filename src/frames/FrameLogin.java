@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameLogin implements Frame {
 
     private final byte opcode=0;
@@ -46,4 +48,9 @@ public class FrameLogin implements Frame {
         		.put(loginBB)
         		.flip();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

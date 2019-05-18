@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameOkPrivate implements Frame {
     private byte opcode=6;
     private final String login_requester;
@@ -54,4 +56,9 @@ public class FrameOkPrivate implements Frame {
         toRet.put(target);
         return toRet.flip();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameLoginPrivate implements Frame {
 
     private final byte opcode=9;
@@ -49,4 +51,9 @@ public class FrameLoginPrivate implements Frame {
         toRet.putLong(connect_id);
         return toRet.flip();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

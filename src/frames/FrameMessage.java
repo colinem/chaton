@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameMessage implements Frame {
 
     private final byte opcode=3;
@@ -58,4 +60,9 @@ public class FrameMessage implements Frame {
         toRet.put(msg);
         return toRet.flip();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

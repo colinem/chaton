@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameEstablished implements Frame {
 
     private final byte opcode=10;
@@ -42,4 +44,9 @@ public class FrameEstablished implements Frame {
     public String toString(){
         return "connection established";
     }
+
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
+import server.Visitor;
+
 public class FrameLoginRefused implements Frame {
 
     private final byte opcode=2;
@@ -37,4 +39,9 @@ public class FrameLoginRefused implements Frame {
     public ByteBuffer asBuffer() {
         return ByteBuffer.allocate(1).put(opcode).flip();
     }
+    
+	@Override
+	public void accept(Visitor visitor) {
+		visitor.visit(this);
+	}
 }

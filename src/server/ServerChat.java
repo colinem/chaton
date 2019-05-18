@@ -26,8 +26,7 @@ import frames.FrameLoginAccepted;
 import frames.FrameLoginRefused;
 import frames.FrameMessage;
 import frames.FrameMessagePrivate;
-import readers.MessageReader;
-import readers.MessageReader.Message;
+import readers.FrameReader;
 import readers.Reader;
 
 
@@ -42,7 +41,7 @@ public class ServerChat {
 		final private Queue<Frame> queue = new LinkedList<>();
 		final private ServerChat server;
 		private boolean closed = false;
-		private final Reader reader = new Reader(bbin);
+		private final Reader reader = new FrameReader(bbin);
 	    private final Charset utf8 = Charset.forName("UTF-8");
 	    private String login;
 
