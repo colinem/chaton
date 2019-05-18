@@ -10,7 +10,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,11 +20,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import frames.Frame;
+import frames.FrameEstablished;
+import frames.FrameIdPrivate;
+import frames.FrameKoPrivate;
 import frames.FrameLogin;
 import frames.FrameLoginAccepted;
+import frames.FrameLoginPrivate;
 import frames.FrameLoginRefused;
 import frames.FrameMessage;
 import frames.FrameMessagePrivate;
+import frames.FrameOkPrivate;
+import frames.FrameRequestPrivate;
 import readers.FrameReader;
 import readers.Reader;
 
@@ -42,7 +47,6 @@ public class ServerChat {
 		final private ServerChat server;
 		private boolean closed = false;
 		private final Reader reader = new FrameReader(bbin);
-	    private final Charset utf8 = Charset.forName("UTF-8");
 	    private String login;
 
 		private Context(ServerChat server, SelectionKey key){
@@ -190,6 +194,54 @@ public class ServerChat {
 			var targetLogin = frameMessagePrivate.getLoginTarget();
 			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameMessagePrivate);
+		}
+
+		@Override
+		public void visit(FrameEstablished frameEstablished) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameIdPrivate frameIdPrivate) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameKoPrivate frameKoPrivate) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameLoginAccepted frameLoginAccepted) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameLoginPrivate frameLoginPrivate) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameLoginRefused frameLoginRefused) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameOkPrivate frameOkPrivate) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void visit(FrameRequestPrivate frameRequestPrivate) {
+			// TODO Auto-generated method stub
+			
 		}
 
 	}

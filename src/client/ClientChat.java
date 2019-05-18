@@ -13,7 +13,23 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
-public class ClientChat {
+import frames.Frame;
+import frames.FrameEstablished;
+import frames.FrameIdPrivate;
+import frames.FrameKoPrivate;
+import frames.FrameLogin;
+import frames.FrameLoginAccepted;
+import frames.FrameLoginPrivate;
+import frames.FrameLoginRefused;
+import frames.FrameMessage;
+import frames.FrameMessagePrivate;
+import frames.FrameOkPrivate;
+import frames.FrameRequestPrivate;
+import readers.FrameReader;
+import readers.Reader;
+import server.Visitor;
+
+public class ClientChat implements Visitor {
 
 	static private int BUFFER_SIZE = 1_024;
 	static private Logger logger = Logger.getLogger(ClientChat.class.getName());
@@ -22,12 +38,14 @@ public class ClientChat {
 	private final Selector selector;
 	
 	private SelectionKey key;
-	private final String login;
+	private String login;
+	private boolean loginAccepted;
 	final private ByteBuffer bbin = ByteBuffer.allocate(BUFFER_SIZE);
 	final private ByteBuffer bbout = ByteBuffer.allocate(BUFFER_SIZE);
 	final private Queue<Frame> queue = new LinkedList<>();
 	private final BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<>(100);
 	private boolean closed = false;
+	private final Reader reader = new FrameReader(bbin);
 
 	public ClientChat(String host, int port, String login) throws IOException {
 		this.login = login;
@@ -40,6 +58,7 @@ public class ClientChat {
 	public void launch() throws IOException {
 		key = socketChannel.register(selector, SelectionKey.OP_CONNECT);
 		var selectedKeys = selector.selectedKeys();
+		queueMessage(login);
 		while (!Thread.interrupted()) {
 			selector.select();
 			
@@ -86,28 +105,37 @@ public class ClientChat {
 	}
 
 	private void queueMessage(String line) {
-		Frame frame;
-		switch (line.charAt(0)) {
-		case '@':
-			frame = new PrivateMessage(line);
-			break;
-		case '/':
-			frame = new PrivateConnectionNegociation(line);
-			break;
-		default:
-			frame = new PrivateMessage(line);
+		try {
+			Frame frame;
+			switch (line.charAt(0)) {
+			case '@':
+				var tokens = line.split(" ", 2);
+				frame = new FrameMessagePrivate(login, tokens[0].substring(1), tokens[1]);
+				break;
+			case '/':
+				tokens = line.split(" ", 2);
+				frame = new FrameRequestPrivate(login, tokens[0].substring(1));
+				break;
+			default:
+				if (loginAccepted)
+					frame = new FrameMessage(login, line);
+				else
+					frame = new FrameLogin(login = line);
+			}
+			queue.add(frame);
+			processOut();
+			updateInterestOps();
+		} catch (IndexOutOfBoundsException e) {
+			return; // dans le cas ou le user tape, par exemple, une truc comme "@ blabla" ou "@login"
 		}
-		queue.add(frame);
-		processOut();
-		updateInterestOps();
 	}
 
 	private void processIn() {
 		while (true)
-			switch (intReader.process()) {
+			switch (reader.process()) {
 			case DONE:
-				System.out.println("Received : " + intReader.get());
-				intReader.reset();
+				((Frame) reader.get()).accept(this);
+				reader.reset();
 				break;
 			case ERROR:
 				silentlyClose();
@@ -118,10 +146,10 @@ public class ClientChat {
 
 	private void processOut() {
 		while (!queue.isEmpty()) {
-			var frameBuffer = queue.element().asByteBuffer();
+			var frameBuffer = queue.element().asBuffer();
 			if (bbout.remaining() < frameBuffer.capacity())
 				return;
-			bbout.putInt();
+			bbout.put(frameBuffer);
 			queue.remove();
 		}
 	}
@@ -168,5 +196,71 @@ public class ClientChat {
 
 	private static void usage(){
 		System.out.println("Usage : ClientChat host port login");
+	}
+	
+	
+	// FRAME TREATMENT METHODS //
+
+	@Override
+	public void visit(FrameLogin frameLogin) {
+		// TODO
+	}
+
+	@Override
+	public void visit(FrameMessage frameMessage) {
+		System.out.println(frameMessage.getLoginSender().get() + " to everyone : " + frameMessage.getMessage().get());
+	}
+
+	@Override
+	public void visit(FrameMessagePrivate frameMessagePrivate) {
+		System.out.println(frameMessagePrivate.getLoginSender() + " to you : " + frameMessagePrivate.getMessage().get());
+	}
+
+	@Override
+	public void visit(FrameEstablished frameEstablished) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(FrameIdPrivate frameIdPrivate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(FrameKoPrivate frameKoPrivate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(FrameLoginAccepted frameLoginAccepted) {
+		loginAccepted = true;
+		System.out.println("You enter the chat.");
+	}
+
+	@Override
+	public void visit(FrameLoginRefused frameLoginRefused) {
+		System.out.println("Your login is already used.\n"
+				+ "Enter another one");
+	}
+
+	@Override
+	public void visit(FrameLoginPrivate frameLoginPrivate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(FrameOkPrivate frameOkPrivate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(FrameRequestPrivate frameRequestPrivate) {
+		// TODO Auto-generated method stub
+		
 	}
 }
