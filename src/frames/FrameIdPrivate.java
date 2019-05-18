@@ -15,6 +15,11 @@ public class FrameIdPrivate implements Frame {
         this.login_target = request.getLoginTarget().toString();
         this.connect_id= connect_id;
     }
+    public FrameIdPrivate(String s, String s1, long connect_id) {
+        this.login_requester = s;
+        this.login_target = s1;
+        this.connect_id= connect_id;
+    }
 
     @Override
     public byte getOpcode() {

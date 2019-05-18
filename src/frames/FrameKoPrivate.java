@@ -14,6 +14,11 @@ public class FrameKoPrivate implements Frame {
         this.login_target = request.getLoginTarget().toString();
     }
 
+    public FrameKoPrivate(String s, String s1) {
+        this.login_requester = s;
+        this.login_target = s1;
+    }
+
     @Override
     public byte getOpcode() {
         return opcode;

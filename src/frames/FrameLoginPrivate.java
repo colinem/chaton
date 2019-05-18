@@ -13,6 +13,10 @@ public class FrameLoginPrivate implements Frame {
         this.connect_id = ok_private.getLong().getAsLong();
     }
 
+    public FrameLoginPrivate(long getaLong) {
+        this.connect_id=getaLong;
+    }
+
     @Override
     public byte getOpcode() {
         return opcode;
