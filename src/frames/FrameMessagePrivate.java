@@ -13,7 +13,7 @@ public class FrameMessagePrivate implements Frame {
 
     public FrameMessagePrivate(String loginSender, String loginTarget, String message) {
         if(loginSender.isBlank() || loginTarget.isBlank() || message.isBlank()) throw new IllegalArgumentException();
-        if(!FrameWriter.testMsg(message))throw new IllegalArgumentException("too long message");
+        if(!StringToBbManager.testMsg(message))throw new IllegalArgumentException("too long message");
         this.loginSender = loginSender;
         this.loginTarget = loginTarget;
         this.message = message;
@@ -52,15 +52,15 @@ public class FrameMessagePrivate implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        ByteBuffer sender= FrameWriter.stringToBB(loginSender);
-        ByteBuffer target= FrameWriter.stringToBB(loginTarget);
-        ByteBuffer msg= FrameWriter.stringToBB(message);
+        ByteBuffer sender= StringToBbManager.stringToBB(loginSender);
+        ByteBuffer target= StringToBbManager.stringToBB(loginTarget);
+        ByteBuffer msg= StringToBbManager.stringToBB(message);
 
-        ByteBuffer toRet=ByteBuffer.allocate(1+sender.remaining()+target.remaining()+msg.remaining()+3*Integer.BYTES);
+        ByteBuffer toRet=ByteBuffer.allocate(1+sender.remaining()+target.remaining()+msg.remaining());
         toRet.put(opcode);
-        toRet.put(ByteBuffer.allocateDirect(sender.remaining())).put(sender);
-        toRet.put(ByteBuffer.allocateDirect(target.remaining())).put(target);
-        toRet.put(ByteBuffer.allocateDirect(msg.remaining())).put(msg);
+        toRet.put(sender);
+        toRet.put(target);
+        toRet.put(msg);
         return toRet.flip();
     }
 }

@@ -42,7 +42,7 @@ public class FrameLogin implements Frame {
     public ByteBuffer asBuffer() {
         return ByteBuffer.allocate(Byte.BYTES)
         		.put(opcode)
-        		.put(FrameWriter.stringToBB(login))
+        		.put(StringToBbManager.stringToBB(login))
         		.flip();
     }
 }

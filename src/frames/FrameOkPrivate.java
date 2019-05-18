@@ -41,12 +41,12 @@ public class FrameOkPrivate implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        ByteBuffer requester= FrameWriter.stringToBB(login_requester);
-        ByteBuffer target= FrameWriter.stringToBB(login_target);
-        ByteBuffer toRet=ByteBuffer.allocate(1+requester.remaining()+target.remaining()+2*Integer.BYTES);
+        ByteBuffer requester= StringToBbManager.stringToBB(login_requester);
+        ByteBuffer target= StringToBbManager.stringToBB(login_target);
+        ByteBuffer toRet=ByteBuffer.allocate(1+requester.remaining()+target.remaining());
         toRet.put(opcode);
-        toRet.put(ByteBuffer.allocateDirect(requester.remaining())).put(requester);
-        toRet.put(ByteBuffer.allocateDirect(target.remaining())).put(target);
+        toRet.put(requester);
+        toRet.put(target);
         return toRet.flip();
     }
 }
