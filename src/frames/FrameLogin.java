@@ -6,7 +6,12 @@ import java.util.OptionalLong;
 
 public class FrameLogin implements Frame {
 
-    private final byte opcode=0;
+    private final byte opcode = 0;
+    private final String login;
+    
+    public FrameLogin(String login) {
+		this.login = login;
+	}
 
     @Override
     public byte getOpcode() {
@@ -15,7 +20,7 @@ public class FrameLogin implements Frame {
 
     @Override
     public Optional<String> getLoginSender(){
-        return Optional.empty();
+        return Optional.of(login);
     }
 
     @Override
@@ -34,7 +39,10 @@ public class FrameLogin implements Frame {
     }
 
     @Override
-    public ByteBuffer getBuffer() {
-        return ByteBuffer.allocate(1).put(opcode).flip();
+    public ByteBuffer asBuffer() {
+        return ByteBuffer.allocate(Byte.BYTES)
+        		.put(opcode)
+        		.put(FrameWriter.stringToBB(login))
+        		.flip();
     }
 }

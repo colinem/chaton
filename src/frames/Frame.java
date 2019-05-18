@@ -11,7 +11,5 @@ public interface Frame {
     Optional<String> getLoginTarget();
     Optional<String> getMessage();
     OptionalLong getLong();
-    ByteBuffer getBuffer();
-    @Override
-    String toString();
+    ByteBuffer asBuffer();
 }

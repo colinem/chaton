@@ -34,7 +34,7 @@ public class FrameLoginAccepted implements Frame {
     }
 
     @Override
-    public ByteBuffer getBuffer() {
+    public ByteBuffer asBuffer() {
         return ByteBuffer.allocate(1).put(opcode).flip();
     }
 }

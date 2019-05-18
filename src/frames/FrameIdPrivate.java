@@ -42,7 +42,7 @@ public class FrameIdPrivate implements Frame {
     }
 
     @Override
-    public ByteBuffer getBuffer() {
+    public ByteBuffer asBuffer() {
         ByteBuffer requester= FrameWriter.stringToBB(login_requester);
         ByteBuffer target= FrameWriter.stringToBB(login_target);
 
