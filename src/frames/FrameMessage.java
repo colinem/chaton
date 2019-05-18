@@ -12,7 +12,7 @@ public class FrameMessage implements Frame {
 
     public FrameMessage(String login, String message) {
         if(login.isBlank() || message.isBlank()) throw new IllegalArgumentException();
-        if(!FrameWriter.testMsg(message))throw new IllegalArgumentException("too long message");
+        if(!StringToBbManager.testMsg(message))throw new IllegalArgumentException("too long message");
         this.login = login;
         this.message = message;
     }
@@ -50,12 +50,12 @@ public class FrameMessage implements Frame {
 
     @Override
     public ByteBuffer getBuffer() {
-        ByteBuffer log= FrameWriter.stringToBB(login);
-        ByteBuffer msg= FrameWriter.stringToBB(message);
-        ByteBuffer toRet=ByteBuffer.allocate(1+log.remaining()+msg.remaining()+2*Integer.BYTES);
+        ByteBuffer log= StringToBbManager.stringToBB(login);
+        ByteBuffer msg= StringToBbManager.stringToBB(message);
+        ByteBuffer toRet=ByteBuffer.allocate(1+log.remaining()+msg.remaining());
         toRet.put(opcode);
-        toRet.put(ByteBuffer.allocateDirect(log.remaining())).put(log);
-        toRet.put(ByteBuffer.allocateDirect(msg.remaining())).put(msg);
+        toRet.put(log);
+        toRet.put(msg);
         return toRet.flip();
     }
 }

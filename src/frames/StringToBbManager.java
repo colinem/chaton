@@ -3,12 +3,12 @@ package frames;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class FrameWriter {
+public class StringToBbManager {
 
     public static ByteBuffer stringToBB(String string) {
         ByteBuffer bbString= StandardCharsets.UTF_8.encode(string);
-        ByteBuffer toRet=ByteBuffer.allocate(bbString.remaining()+1);
-        toRet.put(ByteBuffer.allocateDirect(bbString.remaining()));
+        ByteBuffer toRet=ByteBuffer.allocate(bbString.remaining()+Integer.BYTES);
+        toRet.putInt(bbString.remaining());
         toRet.put(bbString);
         return toRet.flip();
     }
