@@ -40,9 +40,10 @@ public class FrameLogin implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        return ByteBuffer.allocate(Byte.BYTES)
+    	var loginBB = StringToBbManager.stringToBB(login);
+        return ByteBuffer.allocate(Byte.BYTES + loginBB.capacity())
         		.put(opcode)
-        		.put(StringToBbManager.stringToBB(login))
+        		.put(loginBB)
         		.flip();
     }
 }

@@ -44,7 +44,7 @@ public class ServerChat {
 		private boolean closed = false;
 		private final Reader reader = new Reader(bbin);
 	    private final Charset utf8 = Charset.forName("UTF-8");
-	    private boolean loginAccepted;
+	    private String login;
 
 		private Context(ServerChat server, SelectionKey key){
 			this.key = key;
@@ -124,6 +124,7 @@ public class ServerChat {
 
 		private void silentlyClose() {
 			try {
+				server.clients.remove(login);
 				sc.close();
 			} catch (IOException e) {
 				// ignore exception
@@ -163,7 +164,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLogin frameLogin) {
-			if (loginAccepted || frameLogin.getLoginSender().isEmpty()) { // non normal behaviour
+			if (login != null || frameLogin.getLoginSender().isEmpty()) { // not normal behaviour
 				silentlyClose();
 				return;
 			}
@@ -171,6 +172,7 @@ public class ServerChat {
 			if (server.clients.containsKey(login))
 				queue.add(new FrameLoginRefused());
 			else {
+				this.login = login;
 				server.clients.put(login, key);
 				queue.add(new FrameLoginAccepted());
 			}
@@ -178,13 +180,17 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameMessage frameMessage) {
-			server.broadcast(frameMessage);
+			var senderLogin = frameMessage.getLoginSender();
+			if (senderLogin.isPresent() && senderLogin.get().equals(login))
+				server.broadcast(frameMessage);
 		}
 
 		@Override
 		public void visit(FrameMessagePrivate frameMessagePrivate) {
-			// TODO Auto-generated method stub
-			
+			var senderLogin = frameMessagePrivate.getLoginSender();
+			var targetLogin = frameMessagePrivate.getLoginTarget();
+			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameMessagePrivate);
 		}
 
 	}
@@ -264,9 +270,8 @@ public class ServerChat {
 	 * @param msg
 	 */
 	private void broadcast(Frame msg) {
-		for (var key : selector.keys())
-			if (!(key.channel() instanceof ServerSocketChannel))
-				((Context) key.attachment()).queueMessage(msg);
+		for (var key : clients.values())
+			((Context) key.attachment()).queueMessage(msg);
 	}
 
 	public static void main(String[] args) throws NumberFormatException, IOException {

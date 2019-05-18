@@ -14,6 +14,6 @@ public class StringToBbManager {
     }
 
     public static boolean testMsg(String string) {
-        return StandardCharsets.UTF_8.encode(string).remaining()<=1024;
+        return StandardCharsets.UTF_8.encode(string).remaining() <= 1024;
     }
 }
