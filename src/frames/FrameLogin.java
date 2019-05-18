@@ -6,12 +6,12 @@ import java.util.OptionalLong;
 
 public class FrameLogin implements Frame {
 
-    private final byte opcode = 0;
+    private final byte opcode=0;
     private final String login;
-    
+
     public FrameLogin(String login) {
-		this.login = login;
-	}
+        this.login = login;
+    }
 
     @Override
     public byte getOpcode() {
@@ -20,7 +20,7 @@ public class FrameLogin implements Frame {
 
     @Override
     public Optional<String> getLoginSender(){
-        return Optional.of(login);
+        return Optional.ofNullable(login);
     }
 
     @Override
