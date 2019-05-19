@@ -24,9 +24,8 @@ public class FrameReader implements Reader{
 
             switch (state) {
                 case WAITING_ID:
-                   // System.out.println("waiting for ID");
                     if (bb.flip().remaining() < Byte.BYTES){
-                        System.out.println("not enouth space");
+                        bb.compact();
                         return ProcessStatus.REFILL;
                     }
 

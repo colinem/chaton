@@ -252,7 +252,7 @@ public class ServerChat {
 		@Override
 		public void visit(FrameOkPrivate frameOkPrivate) {
 			long value= 0 + (long) (Math.random() * 1000);
-//toDO Verif bon long
+			//TODO Verif bon long
 			var senderLogin = frameOkPrivate.getLoginSender();
 			var targetLogin = frameOkPrivate.getLoginTarget();
 			FrameIdPrivate frameIdPrivate=new FrameIdPrivate(frameOkPrivate, value);
