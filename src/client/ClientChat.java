@@ -47,8 +47,7 @@ public class ClientChat implements Visitor {
 	private boolean closed = false;
 	private final Reader reader = new FrameReader(bbin);
 
-	public ClientChat(String host, int port, String login) throws IOException {
-		this.login = login;
+	public ClientChat(String host, int port) throws IOException {
 		socketChannel = SocketChannel.open();
 		selector = Selector.open();
 		socketChannel.configureBlocking(false);
@@ -58,13 +57,10 @@ public class ClientChat implements Visitor {
 	public void launch() throws IOException {
 		key = socketChannel.register(selector, SelectionKey.OP_CONNECT);
 		var selectedKeys = selector.selectedKeys();
-		queueMessage(login);
 		while (!Thread.interrupted()) {
 			selector.select();
-			
 			while (!blockingQueue.isEmpty())
 				queueMessage(blockingQueue.poll());
-			
 			processSelectedKeys();
 			selectedKeys.clear();
 		}
@@ -98,6 +94,7 @@ public class ClientChat implements Visitor {
 	}
 
 	private void doWrite() throws IOException {
+		System.out.println("doWrite");
 		socketChannel.write(bbout.flip());
 		bbout.compact();
 		processOut();
@@ -140,6 +137,7 @@ public class ClientChat implements Visitor {
 			case ERROR:
 				silentlyClose();
 			case REFILL:
+				System.out.println("ouijerefill");
 				return;
 			}
 	}
@@ -176,9 +174,10 @@ public class ClientChat implements Visitor {
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		try {
-			var client = new ClientChat(args[0], Integer.parseInt(args[1]), args[2]);
+			var client = new ClientChat(args[0], Integer.parseInt(args[1]));
 			
 			new Thread(() -> {
+				client.blockingQueue.offer(args[2]);
 				try (var scan = new Scanner(System.in)) {
 					while (scan.hasNext()) {
 						client.blockingQueue.offer(scan.next());
