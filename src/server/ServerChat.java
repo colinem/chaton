@@ -95,6 +95,7 @@ public class ServerChat {
 		 *
 		 */
 		private void processOut() {
+			System.out.println("OK");
 			while (!queue.isEmpty()) {
 				var frameBuff = queue.element().asBuffer();
 				if (bbout.remaining() < frameBuff.capacity())
@@ -190,6 +191,7 @@ public class ServerChat {
 				queue.add(new FrameLoginAccepted());
 
 			}
+			processOut();
 
 		}
 
