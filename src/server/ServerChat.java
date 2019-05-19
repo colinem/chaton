@@ -116,15 +116,20 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
-			var interestOps = 0;
-			if (!closed && bbin.hasRemaining())
-				interestOps = SelectionKey.OP_READ;
-			if (bbout.position() != 0)
+			int interestOps = 0;
+			if (!closed && bbin.hasRemaining()){
+				interestOps=interestOps|SelectionKey.OP_READ;
+			}
+			if (bbout.position() != 0){
 				interestOps |= SelectionKey.OP_WRITE;
-			if (interestOps == 0)
+			}
+
+			if (interestOps == 0){
 				silentlyClose();
+			}
 			else
 				key.interestOps(interestOps);
+
 		}
 
 		private void silentlyClose() {
@@ -148,6 +153,7 @@ public class ServerChat {
 			if (sc.read(bbin) == -1)
 				closed = true;
 			processIn();
+			bbin.compact();
 			updateInterestOps();
 		}
 
@@ -169,6 +175,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLogin frameLogin) {
+
 			if (login != null || frameLogin.getLoginSender().isEmpty()) {
 				silentlyClose();
 				return;
@@ -181,7 +188,9 @@ public class ServerChat {
 				this.login = login;
 				server.clients.put(login, key);
 				queue.add(new FrameLoginAccepted());
+
 			}
+
 		}
 
 		@Override
@@ -266,10 +275,13 @@ public class ServerChat {
 		serverSocketChannel.configureBlocking(false);
 		serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 		while(!Thread.interrupted()) {
+
+
 			printKeys(); // for debug
 			System.out.println("Starting select");
 			try {
 				selector.select(this::treatKey);
+
 			} catch (UncheckedIOException tunneled) {
 				throw tunneled.getCause();
 			}
@@ -298,6 +310,8 @@ public class ServerChat {
 			logger.log(Level.INFO,"Connection closed with client due to IOException",e);
 			silentlyClose(key);
 		}
+
+
 	}
 
 	private void doAccept(SelectionKey key) throws IOException {
@@ -362,6 +376,7 @@ public class ServerChat {
 			System.out.println("The selector contains no key : this should not happen!");
 			return;
 		}
+
 		System.out.println("The selector contains:");
 		for (SelectionKey key : selectionKeySet){
 			SelectableChannel channel = key.channel();
@@ -379,6 +394,7 @@ public class ServerChat {
 			return sc.getRemoteAddress().toString();
 		} catch (IOException e){
 			return "???";
+
 		}
 	}
 
