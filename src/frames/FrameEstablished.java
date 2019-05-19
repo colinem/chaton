@@ -37,7 +37,7 @@ public class FrameEstablished implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        return ByteBuffer.allocate(1).put(opcode).flip();
+        return ByteBuffer.allocate(1).put(opcode);
     }
 
     @Override

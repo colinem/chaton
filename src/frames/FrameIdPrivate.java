@@ -57,7 +57,7 @@ public class FrameIdPrivate implements Frame {
         toRet.put(requester);
         toRet.put(target);
         toRet.putLong(connect_id);
-        return toRet.flip();
+        return toRet;
     }
     
 	@Override

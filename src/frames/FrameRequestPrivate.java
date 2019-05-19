@@ -51,7 +51,7 @@ public class FrameRequestPrivate implements Frame {
         toRet.put(opcode);
         toRet.put(requester);
         toRet.put(target);
-        return toRet.flip();
+        return toRet;
     }
 
     @Override

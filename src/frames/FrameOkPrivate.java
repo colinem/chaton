@@ -54,7 +54,7 @@ public class FrameOkPrivate implements Frame {
         toRet.put(opcode);
         toRet.put(requester);
         toRet.put(target);
-        return toRet.flip();
+        return toRet;
     }
     
 	@Override

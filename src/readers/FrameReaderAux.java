@@ -30,7 +30,7 @@ public class FrameReaderAux implements Reader {
 
     @Override
     public ProcessStatus process() {
-
+        System.out.println("start process AUX");
         if (state==State.DONE || state==State.ERROR) {
             throw new IllegalStateException();
         }
@@ -51,6 +51,7 @@ public class FrameReaderAux implements Reader {
             }
         }
 
+        System.out.println("start LONG");
         if(isThereLong) {
             Reader.ProcessStatus status = longReader.process();
             switch (status) {
@@ -64,7 +65,7 @@ public class FrameReaderAux implements Reader {
                     return ProcessStatus.ERROR;
             }
         }
-
+        System.out.println("END of process AUX");
         return ProcessStatus.DONE;
 
 

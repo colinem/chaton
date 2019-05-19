@@ -58,7 +58,7 @@ public class FrameMessage implements Frame {
         toRet.put(opcode);
         toRet.put(log);
         toRet.put(msg);
-        return toRet.flip();
+        return toRet;
     }
     
 	@Override

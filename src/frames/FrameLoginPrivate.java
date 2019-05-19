@@ -49,7 +49,7 @@ public class FrameLoginPrivate implements Frame {
         ByteBuffer toRet=ByteBuffer.allocate(1+Long.BYTES);
         toRet.put(opcode);
         toRet.putLong(connect_id);
-        return toRet.flip();
+        return toRet;
     }
     
 	@Override

@@ -63,7 +63,7 @@ public class FrameMessagePrivate implements Frame {
         toRet.put(sender);
         toRet.put(target);
         toRet.put(msg);
-        return toRet.flip();
+        return toRet;
     }
     
 	@Override
