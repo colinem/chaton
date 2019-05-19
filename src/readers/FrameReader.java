@@ -67,8 +67,7 @@ public class FrameReader implements Reader{
 
                     }
                 case WAITING_CONTENT:
-                    Reader.ProcessStatus status = frameReaderAux.process();
-                    switch (status){
+                    switch (frameReaderAux.process()){
                         case DONE:
                             StringsAndLong stringsAndLong= (StringsAndLong) frameReaderAux.get();
 
