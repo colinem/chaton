@@ -68,7 +68,7 @@ public class ClientChat implements Visitor {
 
 	private void processSelectedKeys() throws IOException {
 		for (SelectionKey key : selector.selectedKeys()) {
-			System.out.println("processSelectedKeys");
+//			System.out.println("processSelectedKeys");
 			if (key.isValid() && key.isConnectable()) {
 				doConnect();
 			}
@@ -82,16 +82,16 @@ public class ClientChat implements Visitor {
 	}
 
 	private void doConnect() throws IOException {
-		System.out.println("doConnect");
+//		System.out.println("doConnect");
 		if (!socketChannel.finishConnect())
 			return;
 		updateInterestOps();
 	}
 
 	private void doRead() throws IOException {
-		System.out.println("doRead");
+//		System.out.println("doRead");
 		if (socketChannel.read(bbin) == -1) {
-			System.out.println("socketChannel.read(bbin) == -1");
+//			System.out.println("socketChannel.read(bbin) == -1");
 			closed = true;
 		}
 		processIn();
@@ -99,7 +99,7 @@ public class ClientChat implements Visitor {
 	}
 
 	private void doWrite() throws IOException {
-		System.out.println("doWrite");
+//		System.out.println("doWrite");
 		socketChannel.write(bbout.flip());
 		bbout.compact();
 		processOut();

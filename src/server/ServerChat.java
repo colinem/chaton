@@ -84,6 +84,7 @@ public class ServerChat {
 		 * @param msg
 		 */
 		private void queueMessage(Frame msg) {
+			System.out.println("queueMessage");
 			queue.add(msg);
 			processOut();
 			updateInterestOps();
@@ -167,14 +168,17 @@ public class ServerChat {
 		 */
 
 		private void doWrite() throws IOException {
+			System.out.println("doWrite");
+			System.out.println("bbout = " + bbout);
 			sc.write(bbout.flip());
+			bbout.compact();
+			System.out.println("bbout = " + bbout);
 			processOut();
 			updateInterestOps();
 		}
 
 		@Override
 		public void visit(FrameLogin frameLogin) {
-
 			if (login != null || frameLogin.getLoginSender().isEmpty()) {
 				silentlyClose();
 				return;
@@ -184,13 +188,12 @@ public class ServerChat {
 				queue.add(new FrameLoginRefused());
 			else {
 				System.out.println("login accepted");
-				this.login = login;
-				server.clients.put(login, key);
+				server.clients.put(this.login = login, key);
 				queue.add(new FrameLoginAccepted());
-
 			}
+			System.out.println("visit FrameLogin");
 			processOut();
-
+			updateInterestOps();
 		}
 
 		@Override
