@@ -66,8 +66,10 @@ public class ServerChat {
 			while (true)
 				switch (reader.process()) {
 				case DONE:
-					((Frame) reader.get()).accept(this);
+					System.out.println(bbin.toString());
+					Frame f = (Frame) reader.get();
 					reader.reset();
+					f.accept(this);
 					break;
 				case REFILL:
 					return;
@@ -97,7 +99,7 @@ public class ServerChat {
 				var frameBuff = queue.element().asBuffer();
 				if (bbout.remaining() < frameBuff.capacity())
 					return;
-				bbout.put(frameBuff);
+				bbout.put(frameBuff.flip());
 				queue.remove();
 			}
 		}
@@ -167,7 +169,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLogin frameLogin) {
-			if (login != null || frameLogin.getLoginSender().isEmpty()) { // not normal behaviour
+			if (login != null || frameLogin.getLoginSender().isEmpty()) {
 				silentlyClose();
 				return;
 			}
@@ -175,6 +177,7 @@ public class ServerChat {
 			if (server.clients.containsKey(login))
 				queue.add(new FrameLoginRefused());
 			else {
+				System.out.println("login accepted");
 				this.login = login;
 				server.clients.put(login, key);
 				queue.add(new FrameLoginAccepted());

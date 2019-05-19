@@ -68,6 +68,7 @@ public class ClientChat implements Visitor {
 
 	private void processSelectedKeys() throws IOException {
 		for (SelectionKey key : selector.selectedKeys()) {
+			System.out.println("processSelectedKeys");
 			if (key.isValid() && key.isConnectable()) {
 				doConnect();
 			}
@@ -81,12 +82,14 @@ public class ClientChat implements Visitor {
 	}
 
 	private void doConnect() throws IOException {
+		System.out.println("doConnect");
 		if (!socketChannel.finishConnect())
 			return;
 		updateInterestOps();
 	}
 
 	private void doRead() throws IOException {
+		System.out.println("doRead");
 		if (socketChannel.read(bbin) == -1)
 			closed = true;
 		processIn();
@@ -116,8 +119,10 @@ public class ClientChat implements Visitor {
 			default:
 				if (loginAccepted)
 					frame = new FrameMessage(login, line);
-				else
+				else {
+					System.out.println("queueMessage : FrameLogin");
 					frame = new FrameLogin(login = line);
+				}
 			}
 			queue.add(frame);
 			processOut();
@@ -128,6 +133,7 @@ public class ClientChat implements Visitor {
 	}
 
 	private void processIn() {
+		System.out.println("processIn");
 		while (true)
 			switch (reader.process()) {
 			case DONE:
@@ -137,27 +143,32 @@ public class ClientChat implements Visitor {
 			case ERROR:
 				silentlyClose();
 			case REFILL:
-				System.out.println("ouijerefill");
 				return;
 			}
 	}
 
 	private void processOut() {
+		System.out.println("processOut");
 		while (!queue.isEmpty()) {
 			var frameBuffer = queue.element().asBuffer();
 			if (bbout.remaining() < frameBuffer.capacity())
 				return;
-			bbout.put(frameBuffer);
+			System.out.println("bbout position = " + bbout.position());
+			bbout.put(frameBuffer.flip());
+			System.out.println("bbout position = " + bbout.position());
 			queue.remove();
 		}
 	}
 
 	private void updateInterestOps() {
+		System.out.println("updateInterestOps");
 		var interestOps = 0;
 		if (!closed && bbin.hasRemaining())
 			interestOps = SelectionKey.OP_READ;
-		if (bbout.position() != 0)
+		if (bbout.position() != 0) {
+			System.out.println("OP_WRITE");
 			interestOps |= SelectionKey.OP_WRITE;
+		}
 		if (interestOps == 0)
 			silentlyClose();
 		else
@@ -172,7 +183,7 @@ public class ClientChat implements Visitor {
 		}
 	}
 
-	public static void main(String[] args) throws NumberFormatException, IOException {
+	public static void main(String[] args) throws IOException {
 		try {
 			var client = new ClientChat(args[0], Integer.parseInt(args[1]));
 			

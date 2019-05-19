@@ -29,7 +29,6 @@ public class FrameReader implements Reader{
                         return ProcessStatus.REFILL;
                     }
 
-
                     ID = bb.get();
                     bb.compact();
                     state = State.WAITING_CONTENT;
@@ -68,10 +67,6 @@ public class FrameReader implements Reader{
 
                     }
                 case WAITING_CONTENT:
-
-                    if (state==State.DONE || state==State.ERROR) {
-                        throw new IllegalStateException();
-                    }
                     Reader.ProcessStatus status = frameReaderAux.process();
                     switch (status){
                         case DONE:
@@ -116,6 +111,7 @@ public class FrameReader implements Reader{
                 default:
                     throw new IllegalStateException();
             }
+            
         } finally {
             bb.compact();
         }

@@ -1,22 +1,27 @@
 package readers;
 
+import java.nio.ByteBuffer;
+
 import frames.*;
 
 public class TestReader {
 
     public static void main(String[] args) {
+    	var bb = ByteBuffer.allocate(1_024);
+    	
         FrameLogin frameLogin=new FrameLogin("mon pseudo");
-        Reader frameReader = new FrameReader(frameLogin.asBuffer());
+        bb.put(frameLogin.asBuffer().flip());
+        Reader frameReader = new FrameReader(bb);
         Reader.ProcessStatus ok = Reader.ProcessStatus.REFILL;
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
         Frame frame= (Frame) frameReader.get();
-        System.out.println(frame.getLoginSender());
+        System.out.println(frame.getLoginSender().get());
 
         ok = Reader.ProcessStatus.REFILL;
         FrameLoginAccepted frameLoginAccepted=new FrameLoginAccepted();
-        frameReader = new FrameReader(frameLoginAccepted.asBuffer());
+        bb.put(frameLoginAccepted.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -25,7 +30,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameLoginRefused frameLoginRefused=new FrameLoginRefused();
-        frameReader = new FrameReader(frameLoginRefused.asBuffer());
+        bb.put(frameLoginRefused.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -34,7 +39,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameMessage frameMessage=new FrameMessage("mon pseudo", "mon message a tout les copains");
-        frameReader = new FrameReader(frameMessage.asBuffer());
+        bb.put(frameMessage.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -43,7 +48,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameMessagePrivate frameMessagePrivate=new FrameMessagePrivate("Gimli","Legolas", "that still count's as one");
-        frameReader = new FrameReader(frameMessagePrivate.asBuffer());
+        bb.put(frameMessagePrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -52,7 +57,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameRequestPrivate frameRequestPrivate=new FrameRequestPrivate("Gimli","Legolas");
-        frameReader = new FrameReader(frameRequestPrivate.asBuffer());
+        bb.put(frameRequestPrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -61,7 +66,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameOkPrivate frameOKPrivate=new FrameOkPrivate(frameRequestPrivate);
-        frameReader = new FrameReader(frameOKPrivate.asBuffer());
+        bb.put(frameOKPrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -72,7 +77,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameKoPrivate frameKoPrivate=new FrameKoPrivate(frameRequestPrivate);
-        frameReader = new FrameReader(frameKoPrivate.asBuffer());
+        bb.put(frameKoPrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -83,7 +88,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameIdPrivate frameIDPrivate=new FrameIdPrivate(frameRequestPrivate,  15);
-        frameReader = new FrameReader(frameIDPrivate.asBuffer());
+        bb.put(frameIDPrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -95,7 +100,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameLoginPrivate frameLoginPrivate=new FrameLoginPrivate(15);
-        frameReader = new FrameReader(frameLoginPrivate.asBuffer());
+        bb.put(frameLoginPrivate.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
@@ -107,7 +112,7 @@ public class TestReader {
 
         ok = Reader.ProcessStatus.REFILL;
         FrameEstablished frameEstablished=new FrameEstablished();
-        frameReader = new FrameReader(frameEstablished.asBuffer());
+        bb.put(frameEstablished.asBuffer().flip());
         while (ok!= Reader.ProcessStatus.DONE){
             ok=frameReader.process();
         }
