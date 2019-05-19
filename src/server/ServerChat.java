@@ -210,25 +210,30 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameEstablished frameEstablished) {
-			// TODO Auto-generated method stub
+			//never receive by server
 			
 		}
 
 		@Override
 		public void visit(FrameIdPrivate frameIdPrivate) {
-			// TODO Auto-generated method stub
+			//never receive by server
 			
 		}
 
 		@Override
 		public void visit(FrameKoPrivate frameKoPrivate) {
-			// TODO Auto-generated method stub
+			var senderLogin = frameKoPrivate.getLoginSender();
+			var targetLogin = frameKoPrivate.getLoginTarget();
+			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameKoPrivate);
+
+
 			
 		}
 
 		@Override
 		public void visit(FrameLoginAccepted frameLoginAccepted) {
-			// TODO Auto-generated method stub
+			//never received by server
 			
 		}
 
@@ -240,19 +245,33 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLoginRefused frameLoginRefused) {
-			// TODO Auto-generated method stub
+			//never received by server
 			
 		}
 
 		@Override
 		public void visit(FrameOkPrivate frameOkPrivate) {
-			// TODO Auto-generated method stub
+			long value= 0 + (long) (Math.random() * 1000);
+//toDO Verif bon long
+			var senderLogin = frameOkPrivate.getLoginSender();
+			var targetLogin = frameOkPrivate.getLoginTarget();
+			FrameIdPrivate frameIdPrivate=new FrameIdPrivate(frameOkPrivate, value);
+			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login)){
+				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameIdPrivate);
+				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameIdPrivate);
+
+			}
+
+
 			
 		}
 
 		@Override
 		public void visit(FrameRequestPrivate frameRequestPrivate) {
-			// TODO Auto-generated method stub
+			var senderLogin = frameRequestPrivate.getLoginSender();
+			var targetLogin = frameRequestPrivate.getLoginTarget();
+			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameRequestPrivate);
 			
 		}
 

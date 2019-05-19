@@ -98,7 +98,7 @@ public class TestReader {
         System.out.println(frame.getLoginTarget());
 
         ok = Reader.ProcessStatus.REFILL;
-        FrameIdPrivate frameIDPrivate=new FrameIdPrivate(frameRequestPrivate,  15);
+        FrameIdPrivate frameIDPrivate=new FrameIdPrivate(frameOKPrivate,  15);
         bb.put(frameIDPrivate.asBuffer().flip());
         frameReader.reset();
         while (ok!= Reader.ProcessStatus.DONE){
