@@ -21,7 +21,7 @@ public class FrameReader implements Reader{
 
     @Override
     public ProcessStatus process() {
-        try {
+
             bb.flip();
             switch (state) {
                 case WAITING_ID:
@@ -112,9 +112,7 @@ public class FrameReader implements Reader{
                     throw new IllegalStateException();
             }
             
-        } finally {
-            bb.compact();
-        }
+
     }
 
     @Override
