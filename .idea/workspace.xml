@@ -2,19 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1c726328-6d72-4e08-9a52-b30d75003ced" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/readers/TestReader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameEstablished.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameEstablished.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameIdPrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameIdPrivate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameKoPrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameKoPrivate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameLogin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameLogin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameLoginAccepted.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameLoginAccepted.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameLoginPrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameLoginPrivate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameLoginRefused.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameLoginRefused.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameMessagePrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameMessagePrivate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameOkPrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameOkPrivate.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/frames/FrameRequestPrivate.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/frames/FrameRequestPrivate.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/readers/FrameReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/readers/FrameReader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/readers/FrameReaderAux.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/readers/FrameReaderAux.java" afterDir="false" />
     </list>
@@ -31,11 +18,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/frames/FrameLogin.java">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/readers/FrameReader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+            <state relative-caret-position="218">
+              <caret line="104" column="46" selection-start-line="104" selection-start-column="46" selection-end-line="104" selection-end-column="46" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -106,7 +96,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/frames/StringToBbManager.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="165">
@@ -116,10 +106,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/frames/FrameKoPrivate.java">
+        <entry file="file://$PROJECT_DIR$/src/readers/FrameReaderAux.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="56" column="20" selection-start-line="56" selection-start-column="20" selection-end-line="56" selection-end-column="20" />
+            <state relative-caret-position="233">
+              <caret line="68" column="8" selection-start-line="68" selection-start-column="8" selection-end-line="68" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -143,9 +133,7 @@
         <option value="$PROJECT_DIR$/src/frames/StringToBbManager.java" />
         <option value="$PROJECT_DIR$/src/readers/StringsAndLong.java" />
         <option value="$PROJECT_DIR$/src/readers/LongReader.java" />
-        <option value="$PROJECT_DIR$/src/readers/FrameReaderAux.java" />
         <option value="$PROJECT_DIR$/src/readers/TestReader.java" />
-        <option value="$PROJECT_DIR$/src/readers/FrameReader.java" />
         <option value="$PROJECT_DIR$/src/frames/FrameEstablished.java" />
         <option value="$PROJECT_DIR$/src/frames/FrameIdPrivate.java" />
         <option value="$PROJECT_DIR$/src/frames/FrameKoPrivate.java" />
@@ -157,6 +145,8 @@
         <option value="$PROJECT_DIR$/src/frames/FrameMessagePrivate.java" />
         <option value="$PROJECT_DIR$/src/frames/FrameOkPrivate.java" />
         <option value="$PROJECT_DIR$/src/frames/FrameRequestPrivate.java" />
+        <option value="$PROJECT_DIR$/src/readers/FrameReaderAux.java" />
+        <option value="$PROJECT_DIR$/src/readers/FrameReader.java" />
       </list>
     </option>
   </component>
@@ -393,13 +383,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/readers/FrameReaderAux.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="55" column="19" selection-start-line="55" selection-start-column="19" selection-end-line="55" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/client/ClientChat.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-540">
@@ -411,16 +394,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="19" column="5" lean-forward="true" selection-start-line="7" selection-start-column="4" selection-end-line="19" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/readers/FrameReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="24" column="22" lean-forward="true" selection-start-line="24" selection-start-column="22" selection-end-line="24" selection-end-column="22" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -452,30 +425,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginAccepted.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginPrivate.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="51" column="20" selection-start-line="51" selection-start-column="20" selection-end-line="51" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginRefused.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -511,6 +460,47 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="12" column="28" lean-forward="true" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginAccepted.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginPrivate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="51" column="20" selection-start-line="51" selection-start-column="20" selection-end-line="51" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/frames/FrameLoginRefused.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="39" column="49" selection-start-line="39" selection-start-column="49" selection-end-line="39" selection-end-column="49" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/readers/FrameReaderAux.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="68" column="8" selection-start-line="68" selection-start-column="8" selection-end-line="68" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/readers/FrameReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="218">
+          <caret line="104" column="46" selection-start-line="104" selection-start-column="46" selection-end-line="104" selection-end-column="46" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

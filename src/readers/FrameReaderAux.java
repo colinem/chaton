@@ -66,6 +66,7 @@ public class FrameReaderAux implements Reader {
             }
         }
         System.out.println("END of process AUX");
+        state= State.DONE;
         return ProcessStatus.DONE;
 
 

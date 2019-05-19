@@ -102,6 +102,7 @@ public class FrameReader implements Reader{
                                     frame=new FrameEstablished();
 
                             }
+                            state= State.DONE;
                             return  ProcessStatus.DONE;
                         case REFILL:
                             return  ProcessStatus.REFILL;
