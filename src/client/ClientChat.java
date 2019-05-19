@@ -90,8 +90,10 @@ public class ClientChat implements Visitor {
 
 	private void doRead() throws IOException {
 		System.out.println("doRead");
-		if (socketChannel.read(bbin) == -1)
+		if (socketChannel.read(bbin) == -1) {
+			System.out.println("socketChannel.read(bbin) == -1");
 			closed = true;
+		}
 		processIn();
 		updateInterestOps();
 	}
@@ -137,12 +139,14 @@ public class ClientChat implements Visitor {
 		while (true)
 			switch (reader.process()) {
 			case DONE:
+				System.out.println("reader DONE");
 				((Frame) reader.get()).accept(this);
 				reader.reset();
 				break;
 			case ERROR:
 				silentlyClose();
 			case REFILL:
+				System.out.println("reader REFILL");
 				return;
 			}
 	}
@@ -161,10 +165,12 @@ public class ClientChat implements Visitor {
 	}
 
 	private void updateInterestOps() {
-		System.out.println("updateInterestOps");
+		System.out.println("updateInterestOps : closed ? " + closed + " ; bbin.remaining = " + bbin.remaining());
 		var interestOps = 0;
-		if (!closed && bbin.hasRemaining())
+		if (!closed && bbin.hasRemaining()) {
+			System.out.println("OP_READ");
 			interestOps = SelectionKey.OP_READ;
+		}
 		if (bbout.position() != 0) {
 			System.out.println("OP_WRITE");
 			interestOps |= SelectionKey.OP_WRITE;
@@ -176,6 +182,7 @@ public class ClientChat implements Visitor {
 	}
 
 	private void silentlyClose() {
+		System.out.println("silentlyClose");
 		try {
 			socketChannel.close();
 		} catch (IOException e) {

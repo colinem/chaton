@@ -67,9 +67,8 @@ public class ServerChat {
 				switch (reader.process()) {
 				case DONE:
 					System.out.println(bbin.toString());
-					Frame f = (Frame) reader.get();
+					((Frame) reader.get()).accept(this);
 					reader.reset();
-					f.accept(this);
 					break;
 				case REFILL:
 					return;
@@ -116,6 +115,9 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
+			System.out.println("updateInterestOps : closed ? " + closed 
+					+ "\n ; bbin.remaining = " + bbin.remaining()
+					+ "\n ; bbbin.position = " + bbin.position());
 			var interestOps = 0;
 			if (!closed && bbin.hasRemaining())
 				interestOps = SelectionKey.OP_READ;
@@ -128,6 +130,7 @@ public class ServerChat {
 		}
 
 		private void silentlyClose() {
+			System.out.println(login + " : silentlyClose");
 			try {
 				server.clients.remove(login);
 				sc.close();
