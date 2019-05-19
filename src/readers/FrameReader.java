@@ -22,16 +22,18 @@ public class FrameReader implements Reader{
     @Override
     public ProcessStatus process() {
 
-            bb.flip();
             switch (state) {
                 case WAITING_ID:
-                    if (bb.remaining() < Byte.BYTES){
+                   // System.out.println("waiting for ID");
+                    if (bb.flip().remaining() < Byte.BYTES){
+                        System.out.println("not enouth space");
                         return ProcessStatus.REFILL;
                     }
 
                     ID = bb.get();
                     bb.compact();
                     state = State.WAITING_CONTENT;
+                    System.out.println("got ID");
                     switch (ID){
                         case 0:
                             frameReaderAux=new FrameReaderAux(bb,1,false);
@@ -110,7 +112,6 @@ public class FrameReader implements Reader{
                 default:
                     throw new IllegalStateException();
             }
-            
 
     }
 

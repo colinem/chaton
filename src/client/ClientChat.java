@@ -225,12 +225,12 @@ public class ClientChat implements Visitor {
 
 	@Override
 	public void visit(FrameMessage frameMessage) {
-		System.out.println(frameMessage.getLoginSender().get() + " to everyone : " + frameMessage.getMessage().get());
+		System.out.println(frameMessage);
 	}
 
 	@Override
 	public void visit(FrameMessagePrivate frameMessagePrivate) {
-		System.out.println(frameMessagePrivate.getLoginSender() + " to you : " + frameMessagePrivate.getMessage().get());
+		System.out.println(frameMessagePrivate);
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class ClientChat implements Visitor {
 	@Override
 	public void visit(FrameLoginAccepted frameLoginAccepted) {
 		loginAccepted = true;
-		System.out.println("You enter the chat.");
+		System.out.println(" >>> You enter the chat.");
 	}
 
 	@Override
