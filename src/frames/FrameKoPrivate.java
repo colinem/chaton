@@ -12,8 +12,8 @@ public class FrameKoPrivate implements Frame {
     private final String login_target;
 
     public FrameKoPrivate(FrameRequestPrivate request) {
-        this.login_requester = request.getLoginSender().toString();
-        this.login_target = request.getLoginTarget().toString();
+        this.login_requester = request.getLoginSender().get();
+        this.login_target = request.getLoginTarget().get();
     }
 
     public FrameKoPrivate(String s, String s1) {

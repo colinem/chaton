@@ -25,22 +25,27 @@ public class FrameReader implements Reader{
             bb.flip();
             switch (state) {
                 case WAITING_ID:
-                   // System.out.println("waiting for ID");
                     if (bb.remaining() < Byte.BYTES){
-                        System.out.println("not enouth space");
                         return ProcessStatus.REFILL;
                     }
 
 
                     ID = bb.get();
-                    System.out.println(ID);
                     bb.compact();
                     state = State.WAITING_CONTENT;
-                    System.out.println("got ID");
                     switch (ID){
                         case 0:
                             frameReaderAux=new FrameReaderAux(bb,1,false);
                             break;
+                        case 1:
+                            frame=new FrameLoginAccepted();
+                            state= State.DONE;
+                            return  ProcessStatus.DONE;
+                        case 2:
+                            frame=new FrameLoginRefused();
+                            state= State.DONE;
+                            return  ProcessStatus.DONE;
+
                         case 3:
                         case 5:
                         case 6:
@@ -56,9 +61,14 @@ public class FrameReader implements Reader{
                         case 9:
                             frameReaderAux=new FrameReaderAux(bb,0,true);
                             break;
+                        case 10:
+                            frame=new FrameEstablished();
+                            state= State.DONE;
+                            return  ProcessStatus.DONE;
 
                     }
                 case WAITING_CONTENT:
+
                     if (state==State.DONE || state==State.ERROR) {
                         throw new IllegalStateException();
                     }
@@ -70,12 +80,6 @@ public class FrameReader implements Reader{
                             switch (ID){
                                 case 0:
                                     frame=new FrameLogin(stringsAndLong.getArrayList().get(0));
-                                    break;
-                                case 1:
-                                    frame=new FrameLoginAccepted();
-                                    break;
-                                case 2:
-                                    frame=new FrameLoginRefused();
                                     break;
                                 case 3:
                                     frame=new FrameMessage(stringsAndLong.getArrayList().get(0),stringsAndLong.getArrayList().get(1));
@@ -98,8 +102,7 @@ public class FrameReader implements Reader{
                                 case 9:
                                     frame=new FrameLoginPrivate(stringsAndLong.getaLong());
                                     break;
-                                case 10:
-                                    frame=new FrameEstablished();
+
 
                             }
                             state= State.DONE;

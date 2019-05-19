@@ -13,8 +13,8 @@ public class FrameIdPrivate implements Frame {
     private final long connect_id;
 
     public FrameIdPrivate(FrameRequestPrivate request, long connect_id) {
-        this.login_requester = request.getLoginSender().toString();
-        this.login_target = request.getLoginTarget().toString();
+        this.login_requester = request.getLoginSender().get();
+        this.login_target = request.getLoginTarget().get();
         this.connect_id= connect_id;
     }
     public FrameIdPrivate(String s, String s1, long connect_id) {
