@@ -59,8 +59,9 @@ public class ClientChat implements Visitor {
 		var selectedKeys = selector.selectedKeys();
 		while (!Thread.interrupted()) {
 			selector.select();
-			while (!blockingQueue.isEmpty())
+			while (!blockingQueue.isEmpty()) {
 				queueMessage(blockingQueue.poll());
+			}
 			processSelectedKeys();
 			selectedKeys.clear();
 		}
@@ -90,10 +91,8 @@ public class ClientChat implements Visitor {
 
 	private void doRead() throws IOException {
 //		System.out.println("doRead");
-		if (socketChannel.read(bbin) == -1) {
-//			System.out.println("socketChannel.read(bbin) == -1");
+		if (socketChannel.read(bbin) == -1)
 			closed = true;
-		}
 		processIn();
 		updateInterestOps();
 	}
@@ -111,6 +110,7 @@ public class ClientChat implements Visitor {
 			Frame frame;
 			switch (line.charAt(0)) {
 			case '@':
+//				System.out.println("ligne commence par @ --> new FrameMessagePrivate");
 				var tokens = line.split(" ", 2);
 				frame = new FrameMessagePrivate(login, tokens[0].substring(1), tokens[1]);
 				break;
@@ -121,10 +121,8 @@ public class ClientChat implements Visitor {
 			default:
 				if (loginAccepted)
 					frame = new FrameMessage(login, line);
-				else {
-					System.out.println("queueMessage : FrameLogin");
+				else
 					frame = new FrameLogin(login = line);
-				}
 			}
 			queue.add(frame);
 			processOut();
@@ -135,44 +133,44 @@ public class ClientChat implements Visitor {
 	}
 
 	private void processIn() {
-		System.out.println("processIn");
+//		System.out.println("processIn");
 		while (true)
 			switch (reader.process()) {
 			case DONE:
-				System.out.println("reader DONE");
+//				System.out.println("reader DONE");
 				((Frame) reader.get()).accept(this);
 				reader.reset();
 				break;
 			case ERROR:
 				silentlyClose();
 			case REFILL:
-				System.out.println("reader REFILL");
+//				System.out.println("reader REFILL");
 				return;
 			}
 	}
 
 	private void processOut() {
-		System.out.println("processOut");
+//		System.out.println("processOut");
 		while (!queue.isEmpty()) {
 			var frameBuffer = queue.element().asBuffer();
 			if (bbout.remaining() < frameBuffer.capacity())
 				return;
-			System.out.println("bbout position = " + bbout.position());
+//			System.out.println("bbout position = " + bbout.position());
 			bbout.put(frameBuffer.flip());
-			System.out.println("bbout position = " + bbout.position());
+//			System.out.println("bbout position = " + bbout.position());
 			queue.remove();
 		}
 	}
 
 	private void updateInterestOps() {
-		System.out.println("updateInterestOps : closed ? " + closed + " ; bbin.remaining = " + bbin.remaining());
+//		System.out.println("updateInterestOps : closed ? " + closed + " ; bbin.remaining = " + bbin.remaining());
 		var interestOps = 0;
 		if (!closed && bbin.hasRemaining()) {
-			System.out.println("OP_READ");
+//			System.out.println("OP_READ");
 			interestOps = SelectionKey.OP_READ;
 		}
 		if (bbout.position() != 0) {
-			System.out.println("OP_WRITE");
+//			System.out.println("OP_WRITE");
 			interestOps |= SelectionKey.OP_WRITE;
 		}
 		if (interestOps == 0)
@@ -182,7 +180,7 @@ public class ClientChat implements Visitor {
 	}
 
 	private void silentlyClose() {
-		System.out.println("silentlyClose");
+//		System.out.println("silentlyClose");
 		try {
 			socketChannel.close();
 		} catch (IOException e) {
@@ -197,8 +195,8 @@ public class ClientChat implements Visitor {
 			new Thread(() -> {
 				client.blockingQueue.offer(args[2]);
 				try (var scan = new Scanner(System.in)) {
-					while (scan.hasNext()) {
-						client.blockingQueue.offer(scan.next());
+					while (scan.hasNextLine()) {
+						client.blockingQueue.offer(scan.nextLine());
 						client.selector.wakeup();
 					}
 				}
@@ -225,12 +223,14 @@ public class ClientChat implements Visitor {
 
 	@Override
 	public void visit(FrameMessage frameMessage) {
+		System.out.println("FrameMessage");
 		System.out.println(frameMessage);
 	}
 
 	@Override
 	public void visit(FrameMessagePrivate frameMessagePrivate) {
-		System.out.println(frameMessagePrivate);
+		System.out.println("FrameMessagePrivate mmh");
+		System.out.println("wtf " + frameMessagePrivate);
 	}
 
 	@Override

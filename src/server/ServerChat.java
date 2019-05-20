@@ -66,7 +66,7 @@ public class ServerChat {
 			while (true)
 				switch (reader.process()) {
 				case DONE:
-					System.out.println(bbin.toString());
+//					System.out.println(bbin.toString());
 					((Frame) reader.get()).accept(this);
 					reader.reset();
 					break;
@@ -84,7 +84,7 @@ public class ServerChat {
 		 * @param msg
 		 */
 		private void queueMessage(Frame msg) {
-			System.out.println("queueMessage");
+//			System.out.println("queueMessage");
 			queue.add(msg);
 			processOut();
 			updateInterestOps();
@@ -95,7 +95,7 @@ public class ServerChat {
 		 *
 		 */
 		private void processOut() {
-			System.out.println("OK");
+//			System.out.println("OK");
 			while (!queue.isEmpty()) {
 				var frameBuff = queue.element().asBuffer();
 				if (bbout.remaining() < frameBuff.capacity())
@@ -117,9 +117,9 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
-			System.out.println("updateInterestOps : closed ? " + closed 
-					+ "\n ; bbin.remaining = " + bbin.remaining()
-					+ "\n ; bbbin.position = " + bbin.position());
+//			System.out.println("updateInterestOps : closed ? " + closed 
+//					+ "\n ; bbin.remaining = " + bbin.remaining()
+//					+ "\n ; bbbin.position = " + bbin.position());
 			var interestOps = 0;
 			if (!closed && bbin.hasRemaining())
 				interestOps = SelectionKey.OP_READ;
@@ -134,7 +134,7 @@ public class ServerChat {
 		}
 
 		private void silentlyClose() {
-			System.out.println(login + " : silentlyClose");
+//			System.out.println(login + " : silentlyClose");
 			try {
 				server.clients.remove(login);
 				sc.close();
@@ -168,11 +168,11 @@ public class ServerChat {
 		 */
 
 		private void doWrite() throws IOException {
-			System.out.println("doWrite");
-			System.out.println("bbout = " + bbout);
+//			System.out.println("doWrite");
+//			System.out.println("bbout = " + bbout);
 			sc.write(bbout.flip());
 			bbout.compact();
-			System.out.println("bbout = " + bbout);
+//			System.out.println("bbout = " + bbout);
 			processOut();
 			updateInterestOps();
 		}
@@ -187,17 +187,18 @@ public class ServerChat {
 			if (server.clients.containsKey(login))
 				queue.add(new FrameLoginRefused());
 			else {
-				System.out.println("login accepted");
+//				System.out.println("login accepted");
 				server.clients.put(this.login = login, key);
 				queue.add(new FrameLoginAccepted());
 			}
-			System.out.println("visit FrameLogin");
+//			System.out.println("visit FrameLogin");
 			processOut();
 			updateInterestOps();
 		}
 
 		@Override
 		public void visit(FrameMessage frameMessage) {
+//			System.out.println("FrameMessage");
 			var senderLogin = frameMessage.getLoginSender();
 			if (senderLogin.isPresent() && senderLogin.get().equals(login))
 				server.broadcast(frameMessage);
@@ -205,9 +206,9 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameMessagePrivate frameMessagePrivate) {
-			var senderLogin = frameMessagePrivate.getLoginSender();
+//			System.out.println("FrameMessagePrivate");
 			var targetLogin = frameMessagePrivate.getLoginTarget();
-			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+			if (frameMessagePrivate.getLoginSender().get().equals(login) && server.clients.containsKey(targetLogin.get()))
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameMessagePrivate);
 		}
 

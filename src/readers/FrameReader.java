@@ -32,7 +32,7 @@ public class FrameReader implements Reader{
                     ID = bb.get();
                     bb.compact();
                     state = State.WAITING_CONTENT;
-                    System.out.println("got ID");
+//                    System.out.println("got ID");
                     switch (ID){
                         case 0:
                             frameReaderAux=new FrameReaderAux(bb,1,false);
