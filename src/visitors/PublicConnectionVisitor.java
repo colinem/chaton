@@ -1,6 +1,5 @@
-package server;
+package visitors;
 
-import frames.FrameEstablished;
 import frames.FrameIdPrivate;
 import frames.FrameKoPrivate;
 import frames.FrameLogin;
@@ -12,12 +11,11 @@ import frames.FrameMessagePrivate;
 import frames.FrameOkPrivate;
 import frames.FrameRequestPrivate;
 
-public interface Visitor {
+public interface PublicConnectionVisitor {
 	
 	public void visit(FrameLogin frameLogin);
 	public void visit(FrameMessage frameMessage);
 	public void visit(FrameMessagePrivate frameMessagePrivate);
-	public void visit(FrameEstablished frameEstablished);
 	public void visit(FrameIdPrivate frameIdPrivate);
 	public void visit(FrameKoPrivate frameKoPrivate);
 	public void visit(FrameLoginAccepted frameLoginAccepted);
@@ -25,5 +23,5 @@ public interface Visitor {
 	public void visit(FrameLoginRefused frameLoginRefused);
 	public void visit(FrameOkPrivate frameOkPrivate);
 	public void visit(FrameRequestPrivate frameRequestPrivate);
-	
+
 }

@@ -5,7 +5,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import server.Visitor;
+import visitors.PrivateConnectionVisitor;
+import visitors.PublicConnectionVisitor;
 
 public interface Frame {
     byte getOpcode();
@@ -14,5 +15,6 @@ public interface Frame {
     Optional<String> getMessage();
     OptionalLong getLong();
     ByteBuffer asBuffer();
-    public void accept(Visitor visitor);
+    public void accept(PublicConnectionVisitor visitor);
+    public void accept(PrivateConnectionVisitor visitor);
 }

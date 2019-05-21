@@ -20,7 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import frames.Frame;
-import frames.FrameEstablished;
 import frames.FrameIdPrivate;
 import frames.FrameKoPrivate;
 import frames.FrameLogin;
@@ -33,11 +32,12 @@ import frames.FrameOkPrivate;
 import frames.FrameRequestPrivate;
 import readers.FrameReader;
 import readers.Reader;
+import visitors.PublicConnectionVisitor;
 
 
 public class ServerChat {
 
-	static private class Context implements Visitor {
+	static private class Context implements PublicConnectionVisitor {
 
 		final private SelectionKey key;
 		final private SocketChannel sc;
@@ -213,70 +213,55 @@ public class ServerChat {
 		}
 
 		@Override
-		public void visit(FrameEstablished frameEstablished) {
-			//never receive by server
-			
-		}
-
-		@Override
 		public void visit(FrameIdPrivate frameIdPrivate) {
-			//never receive by server
-			
+			// DO NOTHING
 		}
 
 		@Override
 		public void visit(FrameKoPrivate frameKoPrivate) {
 			var senderLogin = frameKoPrivate.getLoginSender();
 			var targetLogin = frameKoPrivate.getLoginTarget();
-			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+			if (targetLogin.get().equals(login))
 				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameKoPrivate);
-
-
-			
 		}
 
 		@Override
 		public void visit(FrameLoginAccepted frameLoginAccepted) {
-			//never received by server
-			
+			// DO NOTHING
 		}
 
 		@Override
 		public void visit(FrameLoginPrivate frameLoginPrivate) {
-			// TODO Auto-generated method stub
-			
+			var pc = server.privateConnections.get(frameLoginPrivate.getLong().getAsLong());
+			if (pc != null)
+				pc.complete(key, sc);
+				key.attach(pc);
 		}
 
 		@Override
 		public void visit(FrameLoginRefused frameLoginRefused) {
-			//never received by server
-			
+			// DO NOTHING
 		}
 
 		@Override
 		public void visit(FrameOkPrivate frameOkPrivate) {
-			long value= 0 + (long) (Math.random() * 1000);
-			//TODO Verif bon long
+			var id = (long) (Math.random() * 1000);
 			var senderLogin = frameOkPrivate.getLoginSender();
 			var targetLogin = frameOkPrivate.getLoginTarget();
-			FrameIdPrivate frameIdPrivate=new FrameIdPrivate(frameOkPrivate, value);
-			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login)){
+			var frameIdPrivate = new FrameIdPrivate(frameOkPrivate, id);
+			if (targetLogin.get().equals(login)) {
 				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameIdPrivate);
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameIdPrivate);
-
 			}
-
-
-			
+			server.privateConnections.put(id, new PrivateConnection());
 		}
 
 		@Override
 		public void visit(FrameRequestPrivate frameRequestPrivate) {
 			var senderLogin = frameRequestPrivate.getLoginSender();
 			var targetLogin = frameRequestPrivate.getLoginTarget();
-			if (senderLogin.isPresent() && targetLogin.isPresent() && senderLogin.get().equals(login))
+			if (senderLogin.get().equals(login) && server.clients.containsKey(targetLogin.get()))
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameRequestPrivate);
-			
 		}
 
 	}
@@ -287,6 +272,7 @@ public class ServerChat {
 	private final ServerSocketChannel serverSocketChannel;
 	private final Selector selector;
 	private final Map<String, SelectionKey> clients = new HashMap<>();
+	private final Map<Long, PrivateConnection> privateConnections = new HashMap<>();
 
 	public ServerChat(int port) throws IOException {
 		serverSocketChannel = ServerSocketChannel.open();

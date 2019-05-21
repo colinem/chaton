@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import server.Visitor;
+import visitors.PrivateConnectionVisitor;
+import visitors.PublicConnectionVisitor;
 
 public class FrameMessage implements Frame {
 
@@ -62,7 +63,12 @@ public class FrameMessage implements Frame {
     }
     
 	@Override
-	public void accept(Visitor visitor) {
+	public void accept(PublicConnectionVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public void accept(PrivateConnectionVisitor visitor) {
+		// DO NOTHING
 	}
 }
