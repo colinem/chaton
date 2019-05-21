@@ -32,12 +32,6 @@ public class PrivateConnection implements Connection {
 			bbA.put(establishedBB.flip());
 			bbB.put(establishedBB.flip());
 			updateInterestOps();
-//			try { // TODO A enlever (pour test)
-//				doWrite();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 		else
 			System.out.println("A third person tries to enter the private connection.");

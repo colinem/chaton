@@ -30,7 +30,7 @@ public class ClientChat implements PublicConnectionVisitor {
 
 	static private int BUFFER_SIZE = 1_024;
 
-//	static private Logger logger = Logger.getLogger(ClientChat.class.getName());
+	//	static private Logger logger = Logger.getLogger(ClientChat.class.getName());
 
 	private final SocketChannel socketChannel;
 	private final Selector selector;
@@ -47,7 +47,7 @@ public class ClientChat implements PublicConnectionVisitor {
 	private final BlockingQueue<Frame> blockingQueue = new ArrayBlockingQueue<>(100);
 	private boolean closed = false;
 	private final Reader reader = new FrameReader(bbin);
-	private Map<String, PrivateConnection> privateConnectionMap=new HashMap<>();
+	private Map<String, PrivateConnection> privateConnectionMap = new HashMap<>();
 
 	public ClientChat(String host, int port) throws IOException {
 		socketChannel = SocketChannel.open();
@@ -117,13 +117,9 @@ public class ClientChat implements PublicConnectionVisitor {
 	}
 
 	private void queueMessage(Frame frame) {
-		try {
-			queue.add(frame);
-			processOut();
-			updateInterestOps();
-		} catch (IndexOutOfBoundsException e) {
-			return; // dans le cas ou le user tape, par exemple, une truc comme "@ blabla" ou "@login"
-		}
+		queue.add(frame);
+		processOut();
+		updateInterestOps();
 	}
 
 	private void processIn() {
@@ -193,7 +189,7 @@ public class ClientChat implements PublicConnectionVisitor {
 						Frame frame;
 						var line = scan.nextLine();
 						var tokens = line.split(" ", 2);
-						
+
 						if (!client.loginAccepted)
 							frame = new FrameLogin(client.login = tokens[0]);
 						else if (client.requestPrivateReceived != null) {
@@ -211,32 +207,38 @@ public class ClientChat implements PublicConnectionVisitor {
 							}
 							client.requestPrivateReceived = null;
 						}
-						
+
 						else
-							switch (line.charAt(0)) {
-							case '@':
-								//	System.out.println("ligne commence par @ --> new FrameMessagePrivate");
-								frame = new FrameMessagePrivate(client.login, tokens[0].substring(1), tokens[1]);
-								break;
-							case '/':
-								if(client.privateConnectionMap.containsKey(tokens[0].substring(1))) {
-									client.privateConnectionMap.get(tokens[0].substring(1)).sendContent(tokens[1]);
-									frame=null;
-								}else {
-									frame=new FrameRequestPrivate(client.login, tokens[0].substring(1));
+							try {
+								switch (line.charAt(0)) {
+								case '@':
+									//	System.out.println("ligne commence par @ --> new FrameMessagePrivate");
+									var target = tokens[0].substring(1);
+									if (target.isBlank())
+										continue;
+									frame = new FrameMessagePrivate(client.login, target, tokens[1]);
+									break;
+								case '/':
+									var privateConnection = client.privateConnectionMap.get(tokens[0].substring(1));
+									if (privateConnection != null) {
+										privateConnection.queueMessage(tokens[1]);
+										frame = null;
+									} else {
+										frame = new FrameRequestPrivate(client.login, tokens[0].substring(1));
+									}
+									break;
+
+								default:
+									frame = new FrameMessage(client.login, line);
 								}
-
-
-								break;
-
-							default:
-								frame = new FrameMessage(client.login, line);
+							} catch (IndexOutOfBoundsException e) {
+								continue;
 							}
-						if(frame!=null){
+						
+						if (frame != null) {
 							client.blockingQueue.offer(frame);
 							client.selector.wakeup();
 						}
-
 
 					}
 				}
@@ -288,7 +290,7 @@ public class ClientChat implements PublicConnectionVisitor {
 	@Override
 	public void visit(FrameKoPrivate frameKoPrivate) {
 		System.out.println(" >>> " + frameKoPrivate.getLoginTarget().get()
-			+ " refused to establish a private connection with you. What a mean person.");
+				+ " refused to establish a private connection with you. What a mean person.");
 	}
 
 	@Override

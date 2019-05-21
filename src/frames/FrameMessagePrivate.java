@@ -16,7 +16,7 @@ public class FrameMessagePrivate implements Frame {
 
     public FrameMessagePrivate(String loginSender, String loginTarget, String message) {
         if(loginSender.isBlank() || loginTarget.isBlank() || message.isBlank()) throw new IllegalArgumentException();
-        if(!StringToBbManager.testMsg(message))throw new IllegalArgumentException("too long message");
+        if(!StringToBbManager.testMsg(message)) throw new IllegalArgumentException("too long message");
         this.loginSender = loginSender;
         this.loginTarget = loginTarget;
         this.message = message;

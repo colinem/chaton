@@ -6,13 +6,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
 import frames.Frame;
 import frames.FrameEstablished;
 import frames.FrameLoginPrivate;
+import frames.StringToBbManager;
 import readers.FrameReader;
 import readers.Reader;
 import readers.StringReader;
@@ -28,12 +28,11 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	final private ByteBuffer bbin = ByteBuffer.allocate(BUFFER_SIZE);
 	final private ByteBuffer bbout = ByteBuffer.allocate(BUFFER_SIZE);
 	private final Reader reader = new FrameReader(bbin);
-	private final Reader Sreader = new StringReader(bbin);
-
+	private final Reader sReader = new StringReader(bbin);
 	private boolean closed = false;
-	private boolean connectionEstablished;
+	private boolean privateConnectionEstablished;
 	private final String distantClient;
-	private LinkedList<ByteBuffer> queue=new LinkedList<>();
+	private LinkedList<ByteBuffer> queue = new LinkedList<>();
 
 	public PrivateConnection(String host, int port, Selector selector, String distantClient, long connectId) {
 		this.distantClient = distantClient;
@@ -63,7 +62,7 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	}
 
 	private void processIn() {
-		if (!connectionEstablished)
+		if (!privateConnectionEstablished)
 			switch (reader.process()) {
 			case DONE:
 				((Frame) reader.get()).accept(this);
@@ -76,16 +75,16 @@ class PrivateConnection implements PrivateConnectionVisitor {
 			}
 		else { // TODO
 			// en attendant l'implementation client http //
-			switch (Sreader.process()) {
-				case DONE:
-					System.out.println("Received from private connection with "+distantClient+": " + Sreader.get());
+			switch (sReader.process()) {
+			case DONE:
+				System.out.println("Received from private connection with "+distantClient+": " + sReader.get());
 
-					reader.reset();
-					break;
-				case ERROR:
-					silentlyClose();
-				case REFILL:
-					return;
+				reader.reset();
+				break;
+			case ERROR:
+				silentlyClose();
+			case REFILL:
+				return;
 			}
 			//System.out.println("Received from private connection with"++": " + Charset.forName("UTF-8").decode(bbin.flip()));
 			//bbin.compact();
@@ -94,13 +93,13 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	}
 	private void processOut() {
 		while (!queue.isEmpty()) {
-			ByteBuffer toSend = queue.element();
+			var toSend = queue.element();
 			if (bbout.remaining() < toSend.capacity())
 				return;
-						System.out.println("bbout position = " + bbout.position());
+			System.out.println("bbout position = " + bbout.position());
 			bbout.put(toSend);
-						System.out.println("bbout position = " + bbout.position());
-			bbout.compact();
+			System.out.println("bbout position = " + bbout.position());
+//			bbout.compact();
 			queue.remove();
 		}
 	}
@@ -112,6 +111,7 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	}
 
 	void doWrite() throws IOException {
+		System.out.println(" [debug] private connection doWrite");
 		sc.write(bbout.flip());
 		bbout.compact();
 		processOut();
@@ -133,9 +133,8 @@ class PrivateConnection implements PrivateConnectionVisitor {
 		}
 	}
 
-	public void sendContent(String string){
-		System.out.println(string);
-		queue.add(frames.StringToBbManager.stringToBB(string));
+	public void queueMessage(String msg) {
+		queue.add(StringToBbManager.stringToBB(msg));
 		processOut();
 		updateInterestOps();
 	}
@@ -145,7 +144,7 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	@Override
 	public void visit(FrameEstablished frameEstablished) {
 		System.out.println(" >>> Private connection established with " + distantClient + ".");
-		connectionEstablished = true;
+		privateConnectionEstablished = true;
 	}
 
 
