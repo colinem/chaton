@@ -1,11 +1,16 @@
 package server;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PrivateCommunication {
 
@@ -19,11 +24,14 @@ public class PrivateCommunication {
     private ByteBuffer bboutA= ByteBuffer.allocate(BUFFER_SIZE);
     private ByteBuffer bbinB= ByteBuffer.allocate(BUFFER_SIZE);
     private ByteBuffer bboutB= ByteBuffer.allocate(BUFFER_SIZE);
-    private Queue<Object> clients;
 
+    static private Logger logger = Logger.getLogger(PrivateCommunication.class.getName());
+
+    private boolean killed=false;
 
     public void setKeyA(SelectionKey keyA) {
         this.keyA = keyA;
+        
     }
 
     public void setKeyB(SelectionKey keyB) {
@@ -157,6 +165,52 @@ public class PrivateCommunication {
     }
 
 
+    private void treatKey(SelectionKey key) {
+        printSelectedKey(key); // for debug
+        try {
+            if (key.isValid() && key.isAcceptable()) {
+                doAccept(key);
+            }
+        } catch(IOException ioe) {
+            // lambda call in select requires to tunnel IOException
+            throw new UncheckedIOException(ioe);
+        }
+        try {
+            if (key.isValid() && key.isWritable()) {
+                ((Context) key.attachment()).doWrite();
+            }
+            if (key.isValid() && key.isReadable()) {
+                ((Context) key.attachment()).doRead();
+            }
+        } catch (IOException e) {
+            logger.log(Level.INFO,"Connection closed with client due to IOException",e);
+            silentlyClose(key);
+        }
 
+
+    }
+    private void doAccept(SelectionKey key) throws IOException {
+        var socket = serverSocketChannel.accept();
+        if (socket != null) {
+            socket.configureBlocking(false);
+            var newKey = socket.register(selector, SelectionKey.OP_READ);
+            newKey.attach(new Context(this, newKey, ClientType.A));
+        }
+    }
+    private void silentlyClose(SelectionKey key) {
+        Channel sc = (Channel) key.channel();
+        try {
+            sc.close();
+        } catch (IOException e) {
+            // ignore exception
+        }
+    }
+
+    public void process(){
+        while (!Thread.interrupted() && !killed){
+            treatKey(keyA);
+            treatKey(keyB);
+        }
+    }
 
 }

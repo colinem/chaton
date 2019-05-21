@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1c726328-6d72-4e08-9a52-b30d75003ced" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/server/PrivateCommunication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server/PrivateCommunication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/PrivateCommunication.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/bin/" />
@@ -55,7 +54,7 @@
         <entry file="file://$PROJECT_DIR$/src/server/ServerChat.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="177">
-              <caret line="64" column="34" selection-start-line="64" selection-start-column="34" selection-end-line="64" selection-end-column="34" />
+              <caret line="326" column="37" selection-start-line="326" selection-start-column="31" selection-end-line="326" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -63,12 +62,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/server/PrivateCommunication.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="152" column="19" selection-start-line="152" selection-start-column="19" selection-end-line="152" selection-end-column="19" />
+            <state relative-caret-position="72">
+              <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#611#612#0" expanded="true" />
-                <element signature="e#643#644#0" expanded="true" />
                 <element signature="e#689#690#0" expanded="true" />
                 <element signature="e#721#722#0" expanded="true" />
               </folding>
@@ -96,12 +93,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>accept(</find>
-      <find>accept</find>
-      <find>.add</find>
-      <find>updateint</find>
-      <find>silentlyClose</find>
-      <find>doread</find>
       <find>queueMessage</find>
       <find>enough</find>
       <find>not en</find>
@@ -121,11 +112,17 @@
       <find>context</find>
       <find>serverchat</find>
       <find>write</find>
-      <find>server</find>
       <find>clients</find>
       <find>queuemes</find>
       <find>processIn</find>
+      <find>server</find>
+      <find>serversocket</find>
+      <find>loger</find>
+      <find>logger</find>
+      <find>silentlyClose</find>
       <find>read</find>
+      <find>attach</find>
+      <find>SelectionKey</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -326,6 +323,10 @@
       <window_info anchor="right" id="Capture Analysis" order="6" />
       <window_info anchor="right" id="Palette&#9;" order="7" />
     </layout-to-restore>
+  </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/readers/Reader.java">
@@ -532,13 +533,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/lib/jvm/java-11-oracle/lib/src.zip!/java.base/java/util/concurrent/BlockingQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="189" column="59" selection-start-line="189" selection-start-column="59" selection-end-line="189" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/frames/FrameOkPrivate.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="352">
@@ -577,21 +571,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar:///usr/lib/jvm/java-11-oracle/lib/src.zip!/java.base/java/util/concurrent/BlockingQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="189" column="59" selection-start-line="189" selection-start-column="59" selection-end-line="189" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/server/ServerChat.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="177">
-          <caret line="64" column="34" selection-start-line="64" selection-start-column="34" selection-end-line="64" selection-end-column="34" />
+          <caret line="326" column="37" selection-start-line="326" selection-start-column="31" selection-end-line="326" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/server/PrivateCommunication.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="152" column="19" selection-start-line="152" selection-start-column="19" selection-end-line="152" selection-end-column="19" />
+        <state relative-caret-position="72">
+          <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#611#612#0" expanded="true" />
-            <element signature="e#643#644#0" expanded="true" />
             <element signature="e#689#690#0" expanded="true" />
             <element signature="e#721#722#0" expanded="true" />
           </folding>
