@@ -265,7 +265,7 @@ public class ClientChat implements PublicConnectionVisitor {
 	public void visit(FrameIdPrivate frameIdPrivate) {
 		var requester = frameIdPrivate.getLoginSender().get();
 		var target = frameIdPrivate.getLoginTarget().get();
-//		System.out.println(" >>> Private connection with " + other + ".");
+		System.out.println(" [debug] received private id from server");
 		new PrivateConnection(host, port, selector, requester.equals(login) ? target : requester, frameIdPrivate.getLong().getAsLong());
 	}
 

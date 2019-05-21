@@ -37,7 +37,7 @@ import visitors.PublicConnectionVisitor;
 
 public class ServerChat {
 
-	static private class Context implements PublicConnectionVisitor {
+	static private class Context implements PublicConnectionVisitor, Connection {
 
 		final private SelectionKey key;
 		final private SocketChannel sc;
@@ -151,7 +151,8 @@ public class ServerChat {
 		 *
 		 * @throws IOException
 		 */
-		private void doRead() throws IOException {
+		@Override
+		public void doRead() throws IOException {
 			if (sc.read(bbin) == -1)
 				closed = true;
 			processIn();
@@ -166,8 +167,8 @@ public class ServerChat {
 		 *
 		 * @throws IOException
 		 */
-
-		private void doWrite() throws IOException {
+		@Override
+		public void doWrite() throws IOException {
 //			System.out.println("doWrite");
 //			System.out.println("bbout = " + bbout);
 			sc.write(bbout.flip());
@@ -232,10 +233,13 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLoginPrivate frameLoginPrivate) {
+			System.out.println(" [debug] received private login from client");
 			var pc = server.privateConnections.get(frameLoginPrivate.getLong().getAsLong());
-			if (pc != null)
+			if (pc != null) {
+				System.out.println(" [debug] private id : " + frameLoginPrivate.getLong().getAsLong());
 				pc.complete(key, sc);
 				key.attach(pc);
+			}
 		}
 
 		@Override
@@ -310,10 +314,10 @@ public class ServerChat {
 		}
 		try {
 			if (key.isValid() && key.isWritable()) {
-				((Context) key.attachment()).doWrite();
+				((Connection) key.attachment()).doWrite();
 			}
 			if (key.isValid() && key.isReadable()) {
-				((Context) key.attachment()).doRead();
+				((Connection) key.attachment()).doRead();
 			}
 		} catch (IOException e) {
 			logger.log(Level.INFO,"Connection closed with client due to IOException",e);

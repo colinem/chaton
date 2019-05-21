@@ -27,12 +27,20 @@ public class PrivateConnection implements Connection {
 		else if (keyB == null) {
 			keyB = key;
 			scB = sc;
-			var establishedBB = new FrameEstablished().asBuffer().flip();
-			bbA.put(establishedBB);
-			bbB.put(establishedBB);
+			System.out.println("[debug] creation of FrameEstablished");
+			var establishedBB = new FrameEstablished().asBuffer();
+			bbA.put(establishedBB.flip());
+			bbB.put(establishedBB.flip());
+			updateInterestOps();
+//			try { // TODO A enlever (pour test)
+//				doWrite();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		else
-			throw new IllegalStateException();
+			System.out.println("A third person tries to enter the private connection.");
 		key.attach(this);
 	}
 
@@ -55,6 +63,8 @@ public class PrivateConnection implements Connection {
 			silentlyClose();
 		else
 			keyB.interestOps(interestOps);
+		System.out.println("[debug] keyA interestOps = " + keyA.interestOps());
+		System.out.println("[debug] keyB interestOps = " + keyB.interestOps());
 	}
 
 	@Override
@@ -68,6 +78,7 @@ public class PrivateConnection implements Connection {
 
 	@Override
 	public void doWrite() throws IOException {
+		System.out.println("[debug] private connection doWrite");
 		scA.write(bbB.flip());
 		bbB.compact();
 		scB.write(bbA.flip());
