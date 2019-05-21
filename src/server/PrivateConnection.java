@@ -67,7 +67,9 @@ public class PrivateConnection implements Connection {
 			closed = true;
 		if (scB.read(bbB) == -1)
 			closed = true;
+		System.out.println("I REED SOMETHING PRIVATE");
 		updateInterestOps();
+
 	}
 
 	@Override
