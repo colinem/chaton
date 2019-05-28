@@ -233,13 +233,11 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLoginPrivate frameLoginPrivate) {
-			System.out.println(" [debug] received private login from client");
+//			System.out.println(" [debug] received private login from client");
 			var pc = server.privateConnections.get(frameLoginPrivate.getLong().getAsLong());
-			if (pc != null) {
-				System.out.println(" [debug] private id : " + frameLoginPrivate.getLong().getAsLong());
-				pc.complete(key, sc);
-				key.attach(pc);
-			}
+			if (pc != null)
+				pc.connect(key, sc);
+			// TODO else silently close
 		}
 
 		@Override

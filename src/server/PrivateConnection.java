@@ -19,7 +19,7 @@ public class PrivateConnection implements Connection {
 	final private ByteBuffer bbB = ByteBuffer.allocate(BUFFER_SIZE);
 	private boolean closed = false;
 	
-	public void complete(SelectionKey key, SocketChannel sc) {
+	public void connect(SelectionKey key, SocketChannel sc) {
 		if (keyA == null) {
 			keyA = key;
 			scA = sc;
@@ -27,7 +27,7 @@ public class PrivateConnection implements Connection {
 		else if (keyB == null) {
 			keyB = key;
 			scB = sc;
-			System.out.println("[debug] creation of FrameEstablished");
+//			System.out.println("[debug] creation of FrameEstablished");
 			var establishedBB = new FrameEstablished().asBuffer();
 			bbA.put(establishedBB.flip());
 			bbB.put(establishedBB.flip());
@@ -57,8 +57,8 @@ public class PrivateConnection implements Connection {
 			silentlyClose();
 		else
 			keyB.interestOps(interestOps);
-		System.out.println("[debug] keyA interestOps = " + keyA.interestOps());
-		System.out.println("[debug] keyB interestOps = " + keyB.interestOps());
+//		System.out.println("[debug] keyA interestOps = " + keyA.interestOps());
+//		System.out.println("[debug] keyB interestOps = " + keyB.interestOps());
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public class PrivateConnection implements Connection {
 			closed = true;
 		if (scB.read(bbB) == -1)
 			closed = true;
-		System.out.println("I REED SOMETHING PRIVATE");
+//		System.out.println("I READ SOMETHING PRIVATE");
 		updateInterestOps();
 
 	}
 
 	@Override
 	public void doWrite() throws IOException {
-		System.out.println("[debug] private connection doWrite");
+//		System.out.println("[debug] private connection doWrite");
 		scA.write(bbB.flip());
 		bbB.compact();
 		scB.write(bbA.flip());

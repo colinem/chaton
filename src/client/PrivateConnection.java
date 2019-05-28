@@ -51,10 +51,14 @@ class PrivateConnection implements PrivateConnectionVisitor {
 
 	private void updateInterestOps() {
 		var interestOps = 0;
-		if (!closed && bbin.hasRemaining())
+		if (!closed && bbin.hasRemaining()) {
+			//			System.out.println(" [debug] OP_______READ ");
 			interestOps = SelectionKey.OP_READ;
-		if (bbout.position() != 0)
+		}
+		if (bbout.position() != 0) {
+			//			System.out.println(" [debug] OP_______WRITE ");
 			interestOps |= SelectionKey.OP_WRITE;
+		}
 		if (interestOps == 0)
 			silentlyClose();
 		else
@@ -62,47 +66,55 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	}
 
 	private void processIn() {
-		if (!privateConnectionEstablished)
-			switch (reader.process()) {
-			case DONE:
-				((Frame) reader.get()).accept(this);
-				reader.reset();
-				break;
-			case ERROR:
-				silentlyClose();
-			case REFILL:
-				return;
+		while (true)
+			if (!privateConnectionEstablished)
+				switch (reader.process()) {
+				case DONE:
+					((Frame) reader.get()).accept(this);
+					reader.reset();
+					break;
+				case ERROR:
+					silentlyClose();
+				case REFILL:
+					return;
+				}
+			else { // TODO
+				// en attendant l'implementation client http //
+				switch (sReader.process()) {
+				case DONE:
+					System.out.println("Received from private connection with " + distantClient + " : " + sReader.get());
+					sReader.reset();
+					break;
+				case ERROR:
+					silentlyClose();
+				case REFILL:
+					return;
+				}
+				//System.out.println("Received from private connection with"++": " + Charset.forName("UTF-8").decode(bbin.flip()));
+				//bbin.compact();
+				// ----------------------------------------- //
 			}
-		else { // TODO
-			// en attendant l'implementation client http //
-			switch (sReader.process()) {
-			case DONE:
-				System.out.println("Received from private connection with "+distantClient+": " + sReader.get());
-
-				reader.reset();
-				break;
-			case ERROR:
-				silentlyClose();
-			case REFILL:
-				return;
-			}
-			//System.out.println("Received from private connection with"++": " + Charset.forName("UTF-8").decode(bbin.flip()));
-			//bbin.compact();
-			// ----------------------------------------- //
-		}
 	}
+
 	private void processOut() {
 		while (!queue.isEmpty()) {
 			var toSend = queue.element();
 			if (bbout.remaining() < toSend.capacity())
 				return;
-			System.out.println("bbout position = " + bbout.position());
+			//			System.out.println("bbout position = " + bbout.position());
 			bbout.put(toSend);
-			System.out.println("bbout position = " + bbout.position());
-//			bbout.compact();
+			//			System.out.println("bbout position = " + bbout.position());
+			//			bbout.compact();
 			queue.remove();
 		}
 	}
+
+	public void queueMessage(String msg) {
+		queue.add(StringToBbManager.stringToBB(msg));
+		processOut();
+		updateInterestOps();
+	}
+
 	void doRead() throws IOException {
 		if (sc.read(bbin) == -1)
 			closed = true;
@@ -111,7 +123,7 @@ class PrivateConnection implements PrivateConnectionVisitor {
 	}
 
 	void doWrite() throws IOException {
-		System.out.println(" [debug] private connection doWrite");
+		//		System.out.println(" [debug] private connection doWrite");
 		sc.write(bbout.flip());
 		bbout.compact();
 		processOut();
@@ -131,12 +143,6 @@ class PrivateConnection implements PrivateConnectionVisitor {
 		} catch (IOException e) {
 			// ignore exception
 		}
-	}
-
-	public void queueMessage(String msg) {
-		queue.add(StringToBbManager.stringToBB(msg));
-		processOut();
-		updateInterestOps();
 	}
 
 

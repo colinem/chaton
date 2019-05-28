@@ -47,7 +47,7 @@ public class ClientChat implements PublicConnectionVisitor {
 	private final BlockingQueue<Frame> blockingQueue = new ArrayBlockingQueue<>(100);
 	private boolean closed = false;
 	private final Reader reader = new FrameReader(bbin);
-	private Map<String, PrivateConnection> privateConnectionMap = new HashMap<>();
+	private final Map<String, PrivateConnection> privateConnectionMap = new HashMap<>();
 
 	public ClientChat(String host, int port) throws IOException {
 		socketChannel = SocketChannel.open();
@@ -61,6 +61,7 @@ public class ClientChat implements PublicConnectionVisitor {
 		var selectedKeys = selector.selectedKeys();
 		while (!Thread.interrupted()) {
 			selector.select();
+//			System.out.println(" [debug] sort du select");
 			while (!blockingQueue.isEmpty()) {
 				queueMessage(blockingQueue.poll());
 			}
@@ -70,19 +71,24 @@ public class ClientChat implements PublicConnectionVisitor {
 	}
 
 	private void processSelectedKeys() throws IOException {
+//		System.out.println(" [debug] processSelectedKeys");
 		for (SelectionKey key : selector.selectedKeys()) {
-			//			System.out.println("processSelectedKeys");
+//			System.out.println(" [debug] processSelectedKeys boucle");
 			if (key.isValid() && key.isConnectable()) {
 				if (key == this.key)
 					doConnect();
-				else
+				else {
+//					System.out.println(" [debug] processSelectedKeys --> doRead ");
 					((PrivateConnection) key.attachment()).doConnect();
+				}
 			}
 			if (key.isValid() && key.isWritable()) {
 				if (key == this.key)
 					doWrite();
-				else
+				else {
+//					System.out.println(" [debug] processSelectedKeys --> doWrite ");
 					((PrivateConnection) key.attachment()).doWrite();
+				}
 			}
 			if (key.isValid() && key.isReadable()) {
 				if (key == this.key)
@@ -222,7 +228,7 @@ public class ClientChat implements PublicConnectionVisitor {
 									var privateConnection = client.privateConnectionMap.get(tokens[0].substring(1));
 									if (privateConnection != null) {
 										privateConnection.queueMessage(tokens[1]);
-										frame = null;
+										continue;
 									} else {
 										frame = new FrameRequestPrivate(client.login, tokens[0].substring(1));
 									}
@@ -234,7 +240,7 @@ public class ClientChat implements PublicConnectionVisitor {
 							} catch (IndexOutOfBoundsException e) {
 								continue;
 							}
-						
+
 						if (frame != null) {
 							client.blockingQueue.offer(frame);
 							client.selector.wakeup();
@@ -281,8 +287,7 @@ public class ClientChat implements PublicConnectionVisitor {
 	public void visit(FrameIdPrivate frameIdPrivate) {
 		var requester = frameIdPrivate.getLoginSender().get();
 		var target = frameIdPrivate.getLoginTarget().get();
-		System.out.println(" [debug] received private id from server");
-
+//		System.out.println(" [debug] received private id from server");
 		privateConnectionMap.put(requester.equals(login) ? target : requester,
 				new PrivateConnection(host, port, selector, requester.equals(login) ? target : requester, frameIdPrivate.getLong().getAsLong()));
 	}
