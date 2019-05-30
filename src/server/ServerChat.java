@@ -10,12 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,14 +42,17 @@ public class ServerChat {
 		final private ServerChat server;
 		private boolean closed = false;
 		private final Reader reader = new FrameReader(bbin);
-	    private String login;
-
+		private String login;
+		private ArrayList<String> connectionAsked=new ArrayList<>();
 		private Context(ServerChat server, SelectionKey key){
 			this.key = key;
 			this.sc = (SocketChannel) key.channel();
 			this.server = server;
 		}
 
+		private void addToconnectionAsked(String string){
+			connectionAsked.add(string);
+		}
 		/**
 		 * Process the content of bbin
 		 *
@@ -65,16 +63,16 @@ public class ServerChat {
 		private void processIn() {
 			while (true)
 				switch (reader.process()) {
-				case DONE:
+					case DONE:
 //					System.out.println(bbin.toString());
-					((Frame) reader.get()).accept(this);
-					reader.reset();
-					break;
-				case REFILL:
-					return;
-				case ERROR:
-					silentlyClose();
-					return;
+						((Frame) reader.get()).accept(this);
+						reader.reset();
+						break;
+					case REFILL:
+						return;
+					case ERROR:
+						silentlyClose();
+						return;
 				}
 		}
 
@@ -117,7 +115,7 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
-//			System.out.println("updateInterestOps : closed ? " + closed 
+//			System.out.println("updateInterestOps : closed ? " + closed
 //					+ "\n ; bbin.remaining = " + bbin.remaining()
 //					+ "\n ; bbbin.position = " + bbin.position());
 			var interestOps = 0;
@@ -207,6 +205,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameMessagePrivate frameMessagePrivate) {
+			//Todo pas sure si necessaire verifier que personne existe
 //			System.out.println("FrameMessagePrivate");
 			var targetLogin = frameMessagePrivate.getLoginTarget();
 			if (frameMessagePrivate.getLoginSender().get().equals(login) && server.clients.containsKey(targetLogin.get()))
@@ -235,21 +234,32 @@ public class ServerChat {
 		public void visit(FrameLoginPrivate frameLoginPrivate) {
 //			System.out.println(" [debug] received private login from client");
 			var pc = server.privateConnections.get(frameLoginPrivate.getLong().getAsLong());
-			if (pc != null)
+			if (pc != null){
 				pc.connect(key, sc);
-			// TODO else silently close
+			}else {
+				silentlyClose();
+			}
+
 		}
 
 		@Override
 		public void visit(FrameLoginRefused frameLoginRefused) {
-			// DO NOTHING
+
 		}
 
 		@Override
 		public void visit(FrameOkPrivate frameOkPrivate) {
-			var id = (long) (Math.random() * 1000);
 			var senderLogin = frameOkPrivate.getLoginSender();
+		/*	System.out.println(senderLogin.get());
+			System.out.println(login);
+			System.out.println(connectionAsked);*/
+			if(!connectionAsked.contains(senderLogin.get())){
+
+				return;
+			}
+
 			var targetLogin = frameOkPrivate.getLoginTarget();
+			var id = (long)  new Random().nextLong();
 			var frameIdPrivate = new FrameIdPrivate(frameOkPrivate, id);
 			if (targetLogin.get().equals(login)) {
 				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameIdPrivate);
@@ -262,8 +272,15 @@ public class ServerChat {
 		public void visit(FrameRequestPrivate frameRequestPrivate) {
 			var senderLogin = frameRequestPrivate.getLoginSender();
 			var targetLogin = frameRequestPrivate.getLoginTarget();
-			if (senderLogin.get().equals(login) && server.clients.containsKey(targetLogin.get()))
+			if (senderLogin.get().equals(login) && server.clients.containsKey(targetLogin.get())){
+				//System.out.println(senderLogin.get());
+				//System.out.println(login);
+				((Context)server.clients.get(frameRequestPrivate.getLoginTarget().get()).attachment()).addToconnectionAsked(login);
+				//System.out.println(((Context)server.clients.get(frameRequestPrivate.getLoginTarget().get()).attachment()).connectionAsked);
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameRequestPrivate);
+
+			}
+
 		}
 
 	}
