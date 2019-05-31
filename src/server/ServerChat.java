@@ -205,7 +205,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameMessagePrivate frameMessagePrivate) {
-			//Todo pas sure si necessaire verifier que personne existe
+			// TODO pas sure si necessaire verifier que personne existe
 //			System.out.println("FrameMessagePrivate");
 			var targetLogin = frameMessagePrivate.getLoginTarget();
 			if (frameMessagePrivate.getLoginSender().get().equals(login) && server.clients.containsKey(targetLogin.get()))
