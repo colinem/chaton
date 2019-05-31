@@ -1,10 +1,19 @@
 package readers;
 
-import java.awt.*;
 import java.nio.ByteBuffer;
 
-import frames.*;
 import frames.Frame;
+import frames.FrameEstablished;
+import frames.FrameIdPrivate;
+import frames.FrameKoPrivate;
+import frames.FrameLogin;
+import frames.FrameLoginAccepted;
+import frames.FrameLoginPrivate;
+import frames.FrameLoginRefused;
+import frames.FrameMessage;
+import frames.FrameMessagePrivate;
+import frames.FrameOkPrivate;
+import frames.FrameRequestPrivate;
 
 public class TestReader {
 
