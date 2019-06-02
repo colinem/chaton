@@ -53,8 +53,8 @@ public class FrameMessage implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        ByteBuffer log= StringToBbManager.stringToBB(login);
-        ByteBuffer msg= StringToBbManager.stringToBB(message);
+        ByteBuffer log= StringToBbManager.stringToBBFormated(login);
+        ByteBuffer msg= StringToBbManager.stringToBBFormated(message);
         ByteBuffer toRet=ByteBuffer.allocate(1+log.remaining()+msg.remaining());
         toRet.put(opcode);
         toRet.put(log);

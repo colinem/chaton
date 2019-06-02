@@ -47,13 +47,16 @@ public class ClientChat implements PublicConnectionVisitor {
 	private final BlockingQueue<Frame> blockingQueue = new ArrayBlockingQueue<>(100);
 	private boolean closed = false;
 	private final Reader reader = new FrameReader(bbin);
-	private final Map<String, PrivateConnection> privateConnectionMap = new HashMap<>();
+	private final Map<String, String> privateConnections = new HashMap<>();
+	private final String directory;
+	
 
-	public ClientChat(String host, int port) throws IOException {
+	public ClientChat(String host, int port, String dirName) throws IOException {
 		socketChannel = SocketChannel.open();
 		selector = Selector.open();
 		socketChannel.configureBlocking(false);
 		socketChannel.connect(new InetSocketAddress(this.host = host, this.port = port));
+		directory = dirName;
 	}
 
 	public void launch() throws IOException {
@@ -73,28 +76,33 @@ public class ClientChat implements PublicConnectionVisitor {
 	private void processSelectedKeys() throws IOException {
 //		System.out.println(" [debug] processSelectedKeys");
 		for (SelectionKey key : selector.selectedKeys()) {
-//			System.out.println(" [debug] processSelectedKeys boucle");
+			System.out.println(" [debug] processSelectedKeys boucle");
 			if (key.isValid() && key.isConnectable()) {
+				System.out.println(" [debug] processSelectedKeys --> doConnect ");
 				if (key == this.key)
 					doConnect();
 				else {
-//					System.out.println(" [debug] processSelectedKeys --> doRead ");
+					System.out.println(" [debug] processSelectedKeys --> doConnect for private connections ");
 					((PrivateConnection) key.attachment()).doConnect();
 				}
 			}
 			if (key.isValid() && key.isWritable()) {
+				System.out.println(" [debug] processSelectedKeys --> doWrite ");
 				if (key == this.key)
 					doWrite();
 				else {
-//					System.out.println(" [debug] processSelectedKeys --> doWrite ");
+					System.out.println(" [debug] processSelectedKeys --> doWrite for private connection ");
 					((PrivateConnection) key.attachment()).doWrite();
 				}
 			}
 			if (key.isValid() && key.isReadable()) {
+				System.out.println(" [debug] processSelectedKeys --> doRead");
 				if (key == this.key)
 					doRead();
-				else
+				else {
+					System.out.println(" [debug] processSelectedKeys --> doRead for private connection ");
 					((PrivateConnection) key.attachment()).doRead();
+				}
 			}
 		}
 	}
@@ -186,10 +194,10 @@ public class ClientChat implements PublicConnectionVisitor {
 
 	public static void main(String[] args) throws IOException {
 		try {
-			var client = new ClientChat(args[0], Integer.parseInt(args[1]));
+			var client = new ClientChat(args[0], Integer.parseInt(args[1]), args[2]);
 
 			new Thread(() -> {
-				client.blockingQueue.offer(new FrameLogin(client.login = args[2]));
+				client.blockingQueue.offer(new FrameLogin(client.login = args[3]));
 				try (var scan = new Scanner(System.in)) {
 					while (scan.hasNextLine()) {
 						Frame frame;
@@ -202,16 +210,16 @@ public class ClientChat implements PublicConnectionVisitor {
 							switch (line.toUpperCase()) {
 							case "Y":
 								frame = new FrameOkPrivate(client.requestPrivateReceived);
+								client.requestPrivateReceived = null;
 								break;
 							case "N":
 								frame = new FrameKoPrivate(client.requestPrivateReceived);
+								client.requestPrivateReceived = null;
 								break;
-
 							default:
 								System.out.println(" >>> You didn't answer.");
 								continue;
 							}
-							client.requestPrivateReceived = null;
 						}
 
 						else
@@ -224,14 +232,11 @@ public class ClientChat implements PublicConnectionVisitor {
 										continue;
 									frame = new FrameMessagePrivate(client.login, target, tokens[1]);
 									break;
+									
 								case '/':
-									var privateConnection = client.privateConnectionMap.get(tokens[0].substring(1));
-									if (privateConnection != null) {
-										privateConnection.queueMessage(tokens[1]);
-										continue;
-									} else {
-										frame = new FrameRequestPrivate(client.login, tokens[0].substring(1));
-									}
+									target = tokens[0].substring(1);
+									frame = new FrameRequestPrivate(client.login, target);
+									client.privateConnections.put(target, tokens[1]);
 									break;
 
 								default:
@@ -260,7 +265,7 @@ public class ClientChat implements PublicConnectionVisitor {
 
 
 	private static void usage(){
-		System.out.println("Usage : ClientChat host port login");
+		System.out.println("Usage : ClientChat host port login directory");
 	}
 
 
@@ -288,14 +293,17 @@ public class ClientChat implements PublicConnectionVisitor {
 		var requester = frameIdPrivate.getLoginSender().get();
 		var target = frameIdPrivate.getLoginTarget().get();
 //		System.out.println(" [debug] received private id from server");
-		privateConnectionMap.put(requester.equals(login) ? target : requester,
-				new PrivateConnection(host, port, selector, requester.equals(login) ? target : requester, frameIdPrivate.getLong().getAsLong()));
+		if (requester.equals(login))
+			new PrivateConnection(host, port, selector, target, frameIdPrivate.getLong().getAsLong(), directory, privateConnections.get(target));
+		else
+			new PrivateConnection(host, port, selector, requester, frameIdPrivate.getLong().getAsLong(), directory);
 	}
 
 	@Override
 	public void visit(FrameKoPrivate frameKoPrivate) {
-		System.out.println(" >>> " + frameKoPrivate.getLoginTarget().get()
-				+ " refused to establish a private connection with you. What a mean person.");
+		var target = frameKoPrivate.getLoginTarget().get();
+		System.out.println(" >>> " + target + " refused to establish a private connection with you. What a mean person.");
+		privateConnections.remove(target);
 	}
 
 	@Override

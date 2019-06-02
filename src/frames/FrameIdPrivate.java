@@ -51,8 +51,8 @@ public class FrameIdPrivate implements Frame {
 
     @Override
     public ByteBuffer asBuffer() {
-        ByteBuffer requester= StringToBbManager.stringToBB(login_requester);
-        ByteBuffer target= StringToBbManager.stringToBB(login_target);
+        ByteBuffer requester= StringToBbManager.stringToBBFormated(login_requester);
+        ByteBuffer target= StringToBbManager.stringToBBFormated(login_target);
         ByteBuffer toRet=ByteBuffer.allocate(1+requester.remaining()+target.remaining()+2*Integer.BYTES+Long.BYTES);
         toRet.put(opcode);
         toRet.put(requester);

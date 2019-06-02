@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -15,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,7 +47,8 @@ public class ServerChat {
 		final private ServerChat server;
 		private boolean closed = false;
 		private final Reader reader = new FrameReader(bbin);
-	    private String login;
+		private String login;
+		private ArrayList<String> connectionAsked=new ArrayList<>();
 
 		private Context(ServerChat server, SelectionKey key){
 			this.key = key;
@@ -66,7 +67,7 @@ public class ServerChat {
 			while (true)
 				switch (reader.process()) {
 				case DONE:
-//					System.out.println(bbin.toString());
+					//					System.out.println(bbin.toString());
 					((Frame) reader.get()).accept(this);
 					reader.reset();
 					break;
@@ -84,7 +85,7 @@ public class ServerChat {
 		 * @param msg
 		 */
 		private void queueMessage(Frame msg) {
-//			System.out.println("queueMessage");
+			//			System.out.println("queueMessage");
 			queue.add(msg);
 			processOut();
 			updateInterestOps();
@@ -95,7 +96,7 @@ public class ServerChat {
 		 *
 		 */
 		private void processOut() {
-//			System.out.println("OK");
+			//			System.out.println("OK");
 			while (!queue.isEmpty()) {
 				var frameBuff = queue.element().asBuffer();
 				if (bbout.remaining() < frameBuff.capacity())
@@ -117,9 +118,9 @@ public class ServerChat {
 		 */
 
 		private void updateInterestOps() {
-//			System.out.println("updateInterestOps : closed ? " + closed 
-//					+ "\n ; bbin.remaining = " + bbin.remaining()
-//					+ "\n ; bbbin.position = " + bbin.position());
+			//			System.out.println("updateInterestOps : closed ? " + closed 
+			//					+ "\n ; bbin.remaining = " + bbin.remaining()
+			//					+ "\n ; bbbin.position = " + bbin.position());
 			var interestOps = 0;
 			if (!closed && bbin.hasRemaining())
 				interestOps = SelectionKey.OP_READ;
@@ -133,8 +134,8 @@ public class ServerChat {
 
 		}
 
-		private void silentlyClose() {
-//			System.out.println(login + " : silentlyClose");
+		public void silentlyClose() {
+			//			System.out.println(login + " : silentlyClose");
 			try {
 				server.clients.remove(login);
 				sc.close();
@@ -169,13 +170,17 @@ public class ServerChat {
 		 */
 		@Override
 		public void doWrite() throws IOException {
-//			System.out.println("doWrite");
-//			System.out.println("bbout = " + bbout);
+			//			System.out.println("doWrite");
+			//			System.out.println("bbout = " + bbout);
 			sc.write(bbout.flip());
 			bbout.compact();
-//			System.out.println("bbout = " + bbout);
+			//			System.out.println("bbout = " + bbout);
 			processOut();
 			updateInterestOps();
+		}
+		
+		private void addToconnectionAsked(String string){
+			connectionAsked.add(string);
 		}
 
 		@Override
@@ -188,18 +193,18 @@ public class ServerChat {
 			if (server.clients.containsKey(login))
 				queue.add(new FrameLoginRefused());
 			else {
-//				System.out.println("login accepted");
+				//				System.out.println("login accepted");
 				server.clients.put(this.login = login, key);
 				queue.add(new FrameLoginAccepted());
 			}
-//			System.out.println("visit FrameLogin");
+			//			System.out.println("visit FrameLogin");
 			processOut();
 			updateInterestOps();
 		}
 
 		@Override
 		public void visit(FrameMessage frameMessage) {
-//			System.out.println("FrameMessage");
+			//			System.out.println("FrameMessage");
 			var senderLogin = frameMessage.getLoginSender();
 			if (senderLogin.isPresent() && senderLogin.get().equals(login))
 				server.broadcast(frameMessage);
@@ -207,7 +212,7 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameMessagePrivate frameMessagePrivate) {
-//			System.out.println("FrameMessagePrivate");
+			//			System.out.println("FrameMessagePrivate");
 			var targetLogin = frameMessagePrivate.getLoginTarget();
 			if (frameMessagePrivate.getLoginSender().get().equals(login) && server.clients.containsKey(targetLogin.get()))
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameMessagePrivate);
@@ -233,11 +238,11 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameLoginPrivate frameLoginPrivate) {
-//			System.out.println(" [debug] received private login from client");
+			//			System.out.println(" [debug] received private login from client");
 			var pc = server.privateConnections.get(frameLoginPrivate.getLong().getAsLong());
-			if (pc != null)
+			if (pc != null && (connectionAsked.contains(frameLoginPrivate.getLoginSender().get()) || connectionAsked.contains(frameLoginPrivate.getLoginTarget().get())))
 				pc.connect(key, sc);
-			// TODO else silently close
+			else silentlyClose();
 		}
 
 		@Override
@@ -247,9 +252,13 @@ public class ServerChat {
 
 		@Override
 		public void visit(FrameOkPrivate frameOkPrivate) {
-			var id = (long) (Math.random() * 1000);
 			var senderLogin = frameOkPrivate.getLoginSender();
+			if(!connectionAsked.contains(senderLogin.get())){
+				return;
+			}
+
 			var targetLogin = frameOkPrivate.getLoginTarget();
+			var id = (long)  new Random().nextLong();
 			var frameIdPrivate = new FrameIdPrivate(frameOkPrivate, id);
 			if (targetLogin.get().equals(login)) {
 				((Context) server.clients.get(senderLogin.get()).attachment()).queueMessage(frameIdPrivate);
@@ -258,12 +267,19 @@ public class ServerChat {
 			server.privateConnections.put(id, new PrivateConnection());
 		}
 
-		@Override
 		public void visit(FrameRequestPrivate frameRequestPrivate) {
 			var senderLogin = frameRequestPrivate.getLoginSender();
 			var targetLogin = frameRequestPrivate.getLoginTarget();
 			if (senderLogin.get().equals(login) && server.clients.containsKey(targetLogin.get()))
+			if (senderLogin.get().equals(login) && server.clients.containsKey(targetLogin.get())){
+				//System.out.println(senderLogin.get());
+				//System.out.println(login);
+				((Context)server.clients.get(frameRequestPrivate.getLoginTarget().get()).attachment()).addToconnectionAsked(login);
+				//System.out.println(((Context)server.clients.get(frameRequestPrivate.getLoginTarget().get()).attachment()).connectionAsked);
 				((Context) server.clients.get(targetLogin.get()).attachment()).queueMessage(frameRequestPrivate);
+
+			}
+
 		}
 
 	}
@@ -335,12 +351,7 @@ public class ServerChat {
 	}
 
 	private void silentlyClose(SelectionKey key) {
-		Channel sc = (Channel) key.channel();
-		try {
-			sc.close();
-		} catch (IOException e) {
-			// ignore exception
-		}
+		((Connection) key.attachment()).silentlyClose();
 	}
 
 	/**
