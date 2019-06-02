@@ -67,16 +67,18 @@ public class PrivateConnection implements Connection {
 			closed = true;
 		if (scB.read(bbB) == -1)
 			closed = true;
-//		System.out.println("I READ SOMETHING PRIVATE");
+//		System.out.println(" [debug] doRead " + StandardCharsets.UTF_8.decode(bbA.flip()));
+//		System.out.println(" [debug] doRead " + StandardCharsets.UTF_8.decode(bbB.flip()));
 		updateInterestOps();
 
 	}
 
 	@Override
 	public void doWrite() throws IOException {
-//		System.out.println("[debug] private connection doWrite");
+//		System.out.println(" [debug] doWrite position=" + bbB.position() + " --> " + StandardCharsets.UTF_8.decode(bbB.flip()));
 		scA.write(bbB.flip());
 		bbB.compact();
+//		System.out.println(" [debug] doWrite position=" + bbA.position() + " --> " + StandardCharsets.UTF_8.decode(bbA.flip()));
 		scB.write(bbA.flip());
 		bbA.compact();
 		updateInterestOps();
@@ -84,8 +86,10 @@ public class PrivateConnection implements Connection {
 
 	public void silentlyClose() {
 		try {
-			scA.close();
-			scB.close();
+			if (scA != null)
+				scA.close();
+			if (scB != null)
+				scB.close();
 		} catch (IOException e) {
 			// ignore exception
 		}
